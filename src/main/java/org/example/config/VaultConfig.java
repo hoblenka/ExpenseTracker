@@ -10,30 +10,30 @@ public class VaultConfig {
     private String password;
     
     public String getUsername() { 
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalStateException("Username is not configured");
-        }
         return username; 
     }
     
     public void setUsername(String username) { 
-        if (username == null || username.trim().isEmpty()) {
-            throw new IllegalArgumentException("Username cannot be null or empty");
-        }
+        validateNotEmpty(username, "Username cannot be null or empty");
         this.username = username; 
     }
     
-    String getPassword() {
-        if (password == null || password.trim().isEmpty()) {
-            throw new IllegalStateException("Password is not configured");
-        }
+    public String getPassword() {
         return password;
     }
     
     public void setPassword(String password) { 
-        if (password == null || password.trim().isEmpty()) {
-            throw new IllegalArgumentException("Password cannot be null or empty");
-        }
+        validateNotEmpty(password, "Password cannot be null or empty");
         this.password = password; 
+    }
+    
+    private void validateNotEmpty(String value, String message) {
+        try {
+            if (value == null || value.trim().isEmpty()) {
+                throw new IllegalStateException(message);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(message + ": " + e.getMessage(), e);
+        }
     }
 }

@@ -27,22 +27,28 @@ public class Expense {
     public Expense() {}
 
     public Expense(String description, BigDecimal amount, String category, LocalDate date) {
-        setDescription(description);
-        setAmount(amount);
-        setCategory(category);
-        setDate(date);
+        try {
+            setDescription(description);
+            setAmount(amount);
+            setCategory(category);
+            setDate(date);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid expense data: " + e.getMessage(), e);
+        }
     }
 
     // Getters and Setters
     public Long getId() { return id; }
-    void setId(Long id) { this.id = id; }
+    public void setId(Long id) { 
+        this.id = id; 
+    }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { 
         if (description == null || description.trim().isEmpty()) {
             throw new IllegalArgumentException("Description cannot be null or empty");
         }
-        this.description = description; 
+        this.description = description.trim(); 
     }
 
     public BigDecimal getAmount() { return amount; }
@@ -58,7 +64,7 @@ public class Expense {
         if (category == null || category.trim().isEmpty()) {
             throw new IllegalArgumentException("Category cannot be null or empty");
         }
-        this.category = category; 
+        this.category = category.trim(); 
     }
 
     public LocalDate getDate() { return date; }

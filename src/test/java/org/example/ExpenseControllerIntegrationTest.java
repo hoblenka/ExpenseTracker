@@ -41,8 +41,9 @@ class ExpenseControllerIntegrationTest {
         expenseRepository.save(expense);
         
         // Retrieve from database through controller
-        List<Expense> result = expenseController.getAllExpenses();
+        List<Expense> result = expenseController.getAllExpenses().getBody();
 
+        assertNotNull(result);
         assertFalse(result.isEmpty());
         assertTrue(result.stream().anyMatch(e -> "MySQL Database Test".equals(e.getDescription())));
     }

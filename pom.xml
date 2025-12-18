@@ -119,14 +119,14 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>6.2.4</version>
+            <version>6.2.8</version>
         </dependency>
         
         <!-- Override vulnerable spring-boot -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-            <version>3.4.5</version>
+            <version>3.4.9</version>
         </dependency>
     </dependencies>
 

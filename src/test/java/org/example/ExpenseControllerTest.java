@@ -3,6 +3,7 @@ package org.example;
 import org.example.controller.ExpenseController;
 import org.example.model.Expense;
 import org.example.repository.ExpenseRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -33,8 +34,9 @@ class ExpenseControllerTest {
         
         when(expenseRepository.findAll()).thenReturn(Arrays.asList(expense1, expense2));
         
-        List<Expense> result = expenseController.getAllExpenses();
-        
+        List<Expense> result = expenseController.getAllExpenses().getBody();
+
+        Assertions.assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals("Coffee", result.get(0).getDescription());
     }

@@ -31,8 +31,8 @@ jobs:
       
     - name: Build Docker image
       run: |
-        docker build -t expense-tracker:${{ github.sha }} .
-        docker tag expense-tracker:${{ github.sha }} expense-tracker:latest
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/expense-tracker:${{ github.sha }} .
+        docker tag ${{ secrets.DOCKER_USERNAME }}/expense-tracker:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest
         
     - name: Log in to Docker Hub
       if: github.event_name != 'pull_request'
@@ -44,5 +44,5 @@ jobs:
     - name: Push to Docker Hub
       if: github.event_name != 'pull_request'
       run: |
-        docker push expense-tracker:${{ github.sha }}
-        docker push expense-tracker:latest
+        docker push ${{ secrets.DOCKER_USERNAME }}/expense-tracker:${{ github.sha }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/expense-tracker:latest

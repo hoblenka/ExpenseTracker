@@ -18,23 +18,17 @@ public class ExpenseController {
     }
     
     @GetMapping
-    public List<Expense> getAllExpenses() {
-        return expenseRepository.findAll();
+    public ResponseEntity<List<Expense>> getAllExpenses() {
+        return ResponseEntity.ok(expenseRepository.findAll());
     }
     
     @PostMapping
     public ResponseEntity<Expense> createExpense(@Valid @RequestBody Expense expense) {
-        if (expense == null) {
-            return ResponseEntity.badRequest().build();
-        }
         return ResponseEntity.ok(expenseRepository.save(expense));
     }
     
     @GetMapping("/{id}")
     public ResponseEntity<Expense> getExpenseById(@PathVariable Long id) {
-        if (id == null || id <= 0) {
-            return ResponseEntity.badRequest().build();
-        }
         return expenseRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -45,16 +39,24 @@ public class ExpenseController {
         if (id == null || id <= 0) {
             return ResponseEntity.badRequest().build();
         }
-        if (!expenseRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        expenseRepository.deleteById(id);
-        return ResponseEntity.ok().build();
+        /*
+        FIXED
+        Existence check before deletion creates race condition and extra database call Remove the existsById check and call deleteById directly. Handle the case where the entity doesn't exist by checking if the deletion was successful or catch any exceptions from the repository layer.
+         */
+        return expenseRepository.findById(id)
+                .map(expense -> {
+                    expenseRepository.delete(expense);
+                    return ResponseEntity.ok().<Void>build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/category/{category}")
     public ResponseEntity<List<Expense>> getExpensesByCategory(@PathVariable String category) {
-        if (category == null || category.trim().isEmpty()) {
+        if (category == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        if (category.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(expenseRepository.findByCategory(category));

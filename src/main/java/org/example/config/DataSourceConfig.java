@@ -19,13 +19,24 @@ public class DataSourceConfig {
                                 @Value("${spring.datasource.url}") String url,
                                 @Value("${spring.datasource.driver-class-name:com.mysql.cj.jdbc.Driver}") String driver) {
         try {
+            if (vault == null) {
+                throw new IllegalArgumentException("VaultConfig cannot be null");
+            }
             logger.info("Creating DataSource with URL: {}", url);
+            String username = vault.getUsername();
+            String password = vault.getPassword();
             return DataSourceBuilder.create()
                     .url(url)
-                    .username(vault.getUsername())
-                    .password(vault.getPasswordForDataSource())
+                    .username(username)
+                    .password(password)
                     .driverClassName(driver)
                     .build();
+        } catch (IllegalStateException e) {
+            logger.error("Configuration not properly initialized: {}", e.getMessage());
+            throw new RuntimeException("DataSource configuration failed: " + e.getMessage(), e);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid configuration: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
             logger.error("Failed to create DataSource: {}", e.getMessage());
             throw new RuntimeException("DataSource configuration failed", e);

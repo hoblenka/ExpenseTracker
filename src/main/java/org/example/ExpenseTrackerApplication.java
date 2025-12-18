@@ -9,9 +9,12 @@ public class ExpenseTrackerApplication {
     public static void main(String[] args) {
         // Load .env file with security filtering
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-        dotenv.entries().stream()
-                .filter(entry -> entry.getKey().startsWith("DB_") || entry.getKey().startsWith("SPRING_"))
-                .forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+        dotenv.entries().forEach(entry -> {
+            String key = entry.getKey();
+            if (key.startsWith("DB_") || key.startsWith("SPRING_")) {
+                System.setProperty(key, entry.getValue());
+            }
+        });
         
         SpringApplication.run(ExpenseTrackerApplication.class, args);
     }

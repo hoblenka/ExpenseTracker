@@ -15,8 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-integration.properties")
@@ -43,8 +42,8 @@ class ExpenseControllerIntegrationTest {
         
         // Retrieve from database through controller
         List<Expense> result = expenseController.getAllExpenses();
-        
-        assertTrue(result.size() >= 1);
+
+        assertFalse(result.isEmpty());
         assertTrue(result.stream().anyMatch(e -> "MySQL Database Test".equals(e.getDescription())));
     }
 
@@ -72,8 +71,8 @@ class ExpenseControllerIntegrationTest {
         
         Expense testExpense = new Expense("Connection Test", new BigDecimal("1.00"), "Test", LocalDate.now());
         Expense saved = expenseRepository.save(testExpense);
-        
-        assertTrue(saved.getId() != null);
+
+        assertNotNull(saved.getId());
         assertTrue(expenseRepository.existsById(saved.getId()));
         
         expenseRepository.delete(saved);

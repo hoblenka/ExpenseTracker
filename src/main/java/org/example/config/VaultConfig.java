@@ -10,10 +10,7 @@ public class VaultConfig {
     private String password;
     
     public String getUsername() { 
-        if (username == null) {
-            throw new IllegalStateException("Username is not configured");
-        }
-        if (username.trim().isEmpty()) {
+        if (username == null || username.trim().isEmpty()) {
             throw new IllegalStateException("Username is not configured");
         }
         return username; 
@@ -29,11 +26,8 @@ public class VaultConfig {
         this.username = username; 
     }
     
-    public String getPassword() {
-        if (password == null) {
-            throw new IllegalStateException("Password is not configured");
-        }
-        if (password.trim().isEmpty()) {
+    String getPasswordForDataSource() {
+        if (password == null || password.trim().isEmpty()) {
             throw new IllegalStateException("Password is not configured");
         }
         return password; 

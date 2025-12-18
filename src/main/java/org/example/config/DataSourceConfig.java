@@ -23,7 +23,7 @@ public class DataSourceConfig {
             return DataSourceBuilder.create()
                     .url(url)
                     .username(vault.getUsername())
-                    .password(vault.getPassword())
+                    .password(vault.getPasswordForDataSource())
                     .driverClassName(driver)
                     .build();
         } catch (Exception e) {

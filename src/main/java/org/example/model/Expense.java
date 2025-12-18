@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "expenses")
+@SuppressWarnings("unused")
 public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,13 +27,19 @@ public class Expense {
     public Expense() {}
 
     public Expense(String description, BigDecimal amount, String category, LocalDate date) {
-        if (description == null || description.trim().isEmpty()) {
+        if (description == null) {
+            throw new IllegalArgumentException("Description cannot be null or empty");
+        }
+        if (description.trim().isEmpty()) {
             throw new IllegalArgumentException("Description cannot be null or empty");
         }
         if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Amount cannot be null or negative");
         }
-        if (category == null || category.trim().isEmpty()) {
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null or empty");
+        }
+        if (category.trim().isEmpty()) {
             throw new IllegalArgumentException("Category cannot be null or empty");
         }
         if (date == null) {
@@ -50,7 +57,10 @@ public class Expense {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { 
-        if (description == null || description.trim().isEmpty()) {
+        if (description == null) {
+            throw new IllegalArgumentException("Description cannot be null or empty");
+        }
+        if (description.trim().isEmpty()) {
             throw new IllegalArgumentException("Description cannot be null or empty");
         }
         this.description = description; 
@@ -66,7 +76,10 @@ public class Expense {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { 
-        if (category == null || category.trim().isEmpty()) {
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null or empty");
+        }
+        if (category.trim().isEmpty()) {
             throw new IllegalArgumentException("Category cannot be null or empty");
         }
         this.category = category; 

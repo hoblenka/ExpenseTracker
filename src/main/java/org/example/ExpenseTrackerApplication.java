@@ -7,9 +7,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class ExpenseTrackerApplication {
     public static void main(String[] args) {
-        // Load .env file
+        // Load .env file with security filtering
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+        dotenv.entries().stream()
+                .filter(entry -> entry.getKey().startsWith("DB_") || entry.getKey().startsWith("SPRING_"))
+                .forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
         
         SpringApplication.run(ExpenseTrackerApplication.class, args);
     }

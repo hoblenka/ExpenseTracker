@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: expense-tracker-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD_MYSQL}
+      MYSQL_DATABASE: expense_tracker
+      MYSQL_USER: ${DB_USERNAME_MYSQL}
+      MYSQL_PASSWORD: ${DB_PASSWORD_MYSQL}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - expense-network
+
+  app:
+    build: .
+    container_name: expense-tracker-app
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/expense_tracker
+      DB_USERNAME_MYSQL: ${MYSQL_USER:-expense_user}
+      DB_PASSWORD_MYSQL: ${MYSQL_PASSWORD:-secure_user_pass_456}
+    ports:
+      - "8081:8080"
+    networks:
+      - expense-network
+
+volumes:
+  mysql_data:
+
+networks:
+  expense-network:
+    driver: bridge

@@ -1,0 +1,12 @@
+target/classes/
+target/test-classes/
+target/generated-sources/
+target/generated-test-sources/
+.git/
+.github/
+*.md
+.env
+.gitignore
+.gitattributes
+*.iml
+run.bat

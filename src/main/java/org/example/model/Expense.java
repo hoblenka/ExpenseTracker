@@ -26,6 +26,18 @@ public class Expense {
     public Expense() {}
 
     public Expense(String description, BigDecimal amount, String category, LocalDate date) {
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be null or empty");
+        }
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount cannot be null or negative");
+        }
+        if (category == null || category.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category cannot be null or empty");
+        }
+        if (date == null) {
+            throw new IllegalArgumentException("Date cannot be null");
+        }
         this.description = description;
         this.amount = amount;
         this.category = category;
@@ -34,17 +46,37 @@ public class Expense {
 
     // Getters and Setters
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    void setId(Long id) { this.id = id; }
 
     public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public void setDescription(String description) { 
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be null or empty");
+        }
+        this.description = description; 
+    }
 
     public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public void setAmount(BigDecimal amount) { 
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Amount cannot be null or negative");
+        }
+        this.amount = amount; 
+    }
 
     public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public void setCategory(String category) { 
+        if (category == null || category.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category cannot be null or empty");
+        }
+        this.category = category; 
+    }
 
     public LocalDate getDate() { return date; }
-    public void setDate(LocalDate date) { this.date = date; }
+    public void setDate(LocalDate date) { 
+        if (date == null) {
+            throw new IllegalArgumentException("Date cannot be null");
+        }
+        this.date = date; 
+    }
 }

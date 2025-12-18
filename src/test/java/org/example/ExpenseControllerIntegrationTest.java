@@ -56,17 +56,13 @@ class ExpenseControllerIntegrationTest {
         Expense expense1 = new Expense("MySQL Integration 1", new BigDecimal("25.50"), "Database", LocalDate.now());
         Expense expense2 = new Expense("MySQL Integration 2", new BigDecimal("15.75"), "Database", LocalDate.now());
         
-        expenseRepository.save(expense1);
-        expenseRepository.save(expense2);
+        expenseRepository.saveAll(List.of(expense1, expense2));
         
         assertEquals(initialCount + 2, expenseRepository.count());
         
-        List<Expense> expenses = expenseController.getAllExpenses();
-        long testExpenses = expenses.stream()
-                .filter(e -> e.getDescription().startsWith("MySQL Integration"))
-                .count();
+        List<Expense> testExpenses = expenseRepository.findByDescriptionStartingWith("MySQL Integration");
         
-        assertEquals(2, testExpenses);
+        assertEquals(2, testExpenses.size());
     }
 
     @Test

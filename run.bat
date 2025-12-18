@@ -1,14 +1,6 @@
 @echo off
 
 if "%1"=="docker" (
-    if not exist "target\ExpenseTracker-1.0-SNAPSHOT.jar" (
-        echo ERROR: JAR file not found!
-        echo Please build the JAR first in IntelliJ:
-        echo 1. Maven panel ^> clean
-        echo 2. Maven panel ^> package
-        exit /b 1
-    )
-    echo Found JAR file, building Docker...
     docker-compose down
     if exist .env.docker (
         docker-compose --env-file .env.docker build --no-cache

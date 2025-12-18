@@ -34,8 +34,10 @@ class ExpenseControllerTest {
         
         when(expenseRepository.findAll()).thenReturn(Arrays.asList(expense1, expense2));
         
-        List<Expense> result = expenseController.getAllExpenses().getBody();
-
+        var response = expenseController.getAllExpenses();
+        Assertions.assertNotNull(response);
+        List<Expense> result = response.getBody();
+        
         Assertions.assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals("Coffee", result.get(0).getDescription());

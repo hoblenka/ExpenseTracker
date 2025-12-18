@@ -1,13 +1,9 @@
 name: Security Scan
 
 # deactivated: in minimum it takes 5-15 minutes to pass the vulnerability checks
-# on:
-#   push:
-#     branches: [ main ]
-#   pull_request:
-#     branches: [ main ]
-#   schedule:
-#     - cron: '0 0 * * 0'
+# can be started manually
+on:
+  workflow_dispatch:
 
 jobs:
   dependency-check:

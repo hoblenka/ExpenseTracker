@@ -16,3 +16,5 @@ Deploy with Docker using custom passwords: Create .env.docker file first, then r
 
 Start APP
 http://localhost:8081/api/expenses
+
+Other

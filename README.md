@@ -13,3 +13,6 @@ Builds Docker images on main branch pushes
 Run locally with Spring Boot: run.bat (default behavior)
 Deploy with Docker using defaults: run.bat docker
 Deploy with Docker using custom passwords: Create .env.docker file first, then run.bat docker
+
+Start APP
+http://localhost:8081/api/expenses

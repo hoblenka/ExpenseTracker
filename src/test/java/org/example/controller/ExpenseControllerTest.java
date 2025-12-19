@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ExpenseControllerMockTest {
+class ExpenseControllerTest {
 
     @Mock
     private ExpenseService mockExpenseService;
@@ -112,5 +112,23 @@ class ExpenseControllerMockTest {
         assertEquals(1, response.getBody().size());
         
         verify(mockExpenseService).getExpensesByCategory("Food");
+    }
+
+    @Test
+    void testGetExpensesByCategoryWithEmptyCategory() {
+        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory("");
+        assertEquals(400, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetExpensesByCategoryWithNullCategory() {
+        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory(null);
+        assertEquals(400, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetExpensesByCategoryWithWhitespaceCategory() {
+        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory("   ");
+        assertEquals(400, response.getStatusCode().value());
     }
 }

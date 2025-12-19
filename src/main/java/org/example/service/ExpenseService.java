@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService {
@@ -67,5 +68,55 @@ public class ExpenseService {
         
         Expense expense = new Expense(description, amount, category, date);
         saveExpense(expense);
+    }
+
+    public List<Expense> getExpensesByDateRange(LocalDate startDate, LocalDate endDate) {
+        return expenseDAO.findByDateRange(startDate, endDate);
+    }
+
+    public String exportToCsv() {
+        List<Expense> expenses = getAllExpenses();
+        StringBuilder csv = new StringBuilder();
+        csv.append("ID,Description,Amount,Category,Date\n");
+        
+        for (Expense expense : expenses) {
+            csv.append(expense.getId()).append(",")
+               .append(expense.getDescription()).append(",")
+               .append(expense.getAmount()).append(",")
+               .append(expense.getCategory().getDisplayName()).append(",")
+               .append(expense.getDate()).append("\n");
+        }
+        
+        return csv.toString();
+    }
+
+    public List<Expense> getFilteredExpenses(LocalDate startDate, LocalDate endDate, String category) {
+        List<Expense> expenses = getAllExpenses();
+        
+        if (startDate != null && endDate != null) {
+            expenses = expenses.stream()
+                .filter(e -> !e.getDate().isBefore(startDate) && !e.getDate().isAfter(endDate))
+                .collect(Collectors.toList());
+        }
+        
+        if (category != null && !category.trim().isEmpty()) {
+            String trimmedCategory = category.trim();
+            expenses = expenses.stream()
+                .filter(e -> e.getCategoryDisplayName().equalsIgnoreCase(trimmedCategory))
+                .collect(Collectors.toList());
+        }
+        
+        return expenses;
+    }
+
+    public List<Expense> sortExpenses(List<Expense> expenses, String sortBy) {
+        return expenses.stream().sorted((e1, e2) -> switch (sortBy.toLowerCase()) {
+            case "id" -> e1.getId().compareTo(e2.getId());
+            case "description" -> e1.getDescription().compareToIgnoreCase(e2.getDescription());
+            case "amount" -> e1.getAmount().compareTo(e2.getAmount());
+            case "category" -> e1.getCategoryDisplayName().compareToIgnoreCase(e2.getCategoryDisplayName());
+            case "date" -> e1.getDate().compareTo(e2.getDate());
+            default -> 0;
+        }).collect(Collectors.toList());
     }
 }

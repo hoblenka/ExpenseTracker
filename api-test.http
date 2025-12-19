@@ -65,3 +65,33 @@ GET http://localhost:8080/api/expenses/total
 
 ### Add random expense
 POST http://localhost:8080/api/expenses/random
+
+### Filter expenses by category using query parameter - Food
+GET http://localhost:8080/api/expenses?category=Food
+
+### Filter expenses by category using query parameter - Transport
+GET http://localhost:8080/api/expenses?category=Transport
+
+### Filter expenses by category - case insensitive
+GET http://localhost:8080/api/expenses?category=food
+
+### Filter expenses by non-existing category
+GET http://localhost:8080/api/expenses?category=Travel
+
+### Filter expenses with empty category (should return all)
+GET http://localhost:8080/api/expenses?category=
+
+### Filter expenses with whitespace category
+GET http://localhost:8080/api/expenses?category=  Food  
+
+### Sort expenses by amount
+GET http://localhost:8080/api/expenses?sortBy=amount
+
+### Sort expenses by date
+GET http://localhost:8080/api/expenses?sortBy=date
+
+### Sort expenses by description
+GET http://localhost:8080/api/expenses?sortBy=description
+
+### Filter and sort combined
+GET http://localhost:8080/api/expenses?category=Food&sortBy=amount

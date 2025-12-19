@@ -6,6 +6,7 @@ import org.example.model.ExpenseCategory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,17 +20,39 @@ IntelliJ just can't validate JSP paths at compile time in Spring Boot projects.
 public class WebExpenseController {
     
     private final ExpenseService expenseService;
+    private final ExpenseController expenseController;
 
-    public WebExpenseController(ExpenseService expenseService) {
+    public WebExpenseController(ExpenseService expenseService, ExpenseController expenseController) {
         this.expenseService = expenseService;
+        this.expenseController = expenseController;
     }
 
     @GetMapping("/expenses")
-    public String listExpenses(Model model) {
-        List<Expense> expenses = expenseService.getAllExpenses();
-        BigDecimal totalAmount = expenseService.getTotalAmount();
+    public String listExpenses(@RequestParam(required = false) String startDate,
+                             @RequestParam(required = false) String endDate,
+                             @RequestParam(required = false) String category,
+                             @RequestParam(required = false) String sortBy,
+                             Model model) {
+        LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
+        LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
+        
+        List<Expense> expenses = expenseService.getFilteredExpenses(start, end, category);
+        
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            expenses = expenseService.sortExpenses(expenses, sortBy.trim());
+        }
+        
+        BigDecimal totalAmount = expenses.stream()
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
         model.addAttribute("expenses", expenses);
         model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("category", category);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("categories", ExpenseCategory.values());
         return "list";
     }
 
@@ -116,5 +139,61 @@ public class WebExpenseController {
     public String addRandomExpense() {
         expenseService.addRandomExpense();
         return "redirect:/expenses";
+    }
+
+    @GetMapping("/expenses/filter")
+    public String filterExpensesByDateRange(@RequestParam String startDate,
+                                          @RequestParam String endDate,
+                                          Model model) {
+        List<Expense> expenses = expenseService.getFilteredExpenses(
+            LocalDate.parse(startDate), LocalDate.parse(endDate), null);
+        
+        BigDecimal totalAmount = expenses.stream()
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+        model.addAttribute("expenses", expenses);
+        model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        return "list";
+    }
+
+    @GetMapping("/expenses/api/all")
+    @ResponseBody
+    public List<Expense> getAllExpensesApi() {
+        return expenseController.getAllExpenses().getBody();
+    }
+
+    @GetMapping("/expenses/api/{id}")
+    @ResponseBody
+    public Expense getExpenseByIdApi(@PathVariable Long id) {
+        return expenseController.getExpenseById(id).getBody();
+    }
+
+    @PostMapping("/expenses/api/delete/{id}")
+    @ResponseBody
+    public String deleteExpenseApi(@PathVariable Long id) {
+        expenseController.deleteExpense(id);
+        return "deleted";
+    }
+
+    @GetMapping("/expenses/api/total")
+    @ResponseBody
+    public BigDecimal getTotalAmountApi() {
+        return expenseController.getTotalAmount().getBody();
+    }
+
+    @GetMapping("/expenses/api/category/{category}")
+    @ResponseBody
+    public List<Expense> getExpensesByCategoryApi(@PathVariable String category) {
+        return expenseController.getExpensesByCategory(category).getBody();
+    }
+
+    @GetMapping("/expenses/api/filter")
+    @ResponseBody
+    public List<Expense> getExpensesByDateRangeApi(@RequestParam(required = false) String startDate,
+                                                  @RequestParam(required = false) String endDate) {
+        return expenseController.getExpensesByDateRange(startDate, endDate).getBody();
     }
 }

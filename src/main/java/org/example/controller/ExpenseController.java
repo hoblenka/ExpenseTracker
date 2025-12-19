@@ -7,10 +7,13 @@ import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.web.util.HtmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -24,13 +27,29 @@ public class ExpenseController {
     }
     
     @GetMapping
-    public ResponseEntity<List<Expense>> getAllExpenses() {
+    public ResponseEntity<List<Expense>> getAllExpenses(@RequestParam(required = false) String category,
+                                                       @RequestParam(required = false) String sortBy) {
         try {
-            return ResponseEntity.ok(expenseService.getAllExpenses());
+            List<Expense> expenses;
+            if (category != null && !category.trim().isEmpty()) {
+                expenses = expenseService.getExpensesByCategory(category.trim());
+            } else {
+                expenses = expenseService.getAllExpenses();
+            }
+            
+            if (sortBy != null && !sortBy.trim().isEmpty()) {
+                expenses = expenseService.sortExpenses(expenses, sortBy.trim());
+            }
+            
+            return ResponseEntity.ok(expenses);
         } catch (Exception e) {
-            logger.error("Failed to get all expenses: {}", e.getMessage(), e);
+            logger.error("Failed to get expenses: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+    
+    public ResponseEntity<List<Expense>> getAllExpenses() {
+        return getAllExpenses(null, null);
     }
     
     @PostMapping
@@ -127,6 +146,34 @@ public class ExpenseController {
             return ResponseEntity.ok(expenseService.getTotalAmount());
         } catch (Exception e) {
             logger.error("Failed to get total amount: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Expense>> getExpensesByDateRange(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : null;
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : null;
+            return ResponseEntity.ok(expenseService.getExpensesByDateRange(start, end));
+        } catch (Exception e) {
+            logger.error("Failed to filter expenses by date range: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<String> exportExpensesToCsv() {
+        try {
+            String csv = expenseService.exportToCsv();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("text/csv"));
+            headers.setContentDispositionFormData("attachment", "expenses.csv");
+            return ResponseEntity.ok().headers(headers).body(csv);
+        } catch (Exception e) {
+            logger.error("Failed to export expenses to CSV: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }

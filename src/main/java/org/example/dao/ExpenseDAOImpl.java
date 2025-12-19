@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public class ExpenseDAOImpl implements ExpenseDAO {
     
     @Autowired
-    private DataSource dataSource;
+    DataSource dataSource;
 
     @Override
     public List<Expense> findAll() {
@@ -107,7 +108,7 @@ public class ExpenseDAOImpl implements ExpenseDAO {
     @Override
     public List<Expense> findByCategory(String category) {
         List<Expense> expenses = new ArrayList<>();
-        String sql = "SELECT * FROM expenses WHERE category = ?";
+        String sql = "SELECT * FROM expenses WHERE LOWER(category) = LOWER(?)";
         
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -120,6 +121,27 @@ public class ExpenseDAOImpl implements ExpenseDAO {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Error fetching expenses by category", e);
+        }
+        return expenses;
+    }
+
+    @Override
+    public List<Expense> findByDateRange(LocalDate startDate, LocalDate endDate) {
+        List<Expense> expenses = new ArrayList<>();
+        String sql = "SELECT * FROM expenses WHERE date BETWEEN ? AND ?";
+        
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setDate(1, Date.valueOf(startDate));
+            stmt.setDate(2, Date.valueOf(endDate));
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    expenses.add(mapResultSetToExpense(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching expenses by date range", e);
         }
         return expenses;
     }

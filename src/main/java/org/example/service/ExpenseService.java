@@ -75,7 +75,11 @@ public class ExpenseService {
     }
 
     public String exportToCsv() {
-        List<Expense> expenses = getAllExpenses();
+        return exportFilteredToCsv(null, null, null);
+    }
+
+    public String exportFilteredToCsv(LocalDate startDate, LocalDate endDate, String category) {
+        List<Expense> expenses = getFilteredExpenses(startDate, endDate, category);
         StringBuilder csv = new StringBuilder();
         csv.append("ID,Description,Amount,Category,Date\n");
         

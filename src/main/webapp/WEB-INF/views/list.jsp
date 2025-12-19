@@ -14,6 +14,8 @@
             <a href="${pageContext.request.contextPath}/expenses/addRandom" class="btn btn-success ms-2">Add Random Expense</a>
             <a href="${pageContext.request.contextPath}/expenses/deleteAll" class="btn btn-danger ms-2" 
                onclick="return confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')">Delete All Expenses</a>
+            <a href="${pageContext.request.contextPath}/expenses/export?category=${category}&startDate=${startDate}&endDate=${endDate}" 
+               class="btn btn-warning ms-2">Export CSV</a>
         </div>
         
         <form method="get" class="mb-3">

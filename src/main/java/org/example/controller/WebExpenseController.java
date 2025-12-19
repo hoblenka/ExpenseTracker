@@ -3,6 +3,9 @@ package org.example.controller;
 import org.example.service.ExpenseService;
 import org.example.model.Expense;
 import org.example.model.ExpenseCategory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -196,4 +199,6 @@ public class WebExpenseController {
                                                   @RequestParam(required = false) String endDate) {
         return expenseController.getExpensesByDateRange(startDate, endDate).getBody();
     }
+
+
 }

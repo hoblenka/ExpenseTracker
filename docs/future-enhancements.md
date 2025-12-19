@@ -4,6 +4,7 @@ This document lists planned enhancements for the ExpenseTracker web application 
 Each enhancement can be implemented independently and tested using the scenarios below.
 
 ---
+✅ - DONE  ❌ - TODO
 
 ## ✅ 1. Filtering Expenses by Category
 
@@ -58,7 +59,7 @@ Allow users to filter expenses between two dates.
 
 ---
 
-## ✅ 3. Pagination for Large Expense Lists
+## ❌ 3. Pagination for Large Expense Lists
 
 ### Description
 Split the expenses list into pages (e.g., 10 per page).
@@ -81,7 +82,7 @@ Split the expenses list into pages (e.g., 10 per page).
 
 ---
 
-## ✅ 4. User Authentication (Login System)
+## ❌ 4. User Authentication (Login System)
 
 ### Description
 Add login/logout functionality so only authenticated users can manage expenses.
@@ -124,7 +125,7 @@ Allow users to export the current filtered list to a CSV file.
 
 ---
 
-## ✅ 6. REST API Endpoints
+## ❌ 6. REST API Endpoints
 
 ### Description
 Expose CRUD operations via JSON REST API.
@@ -148,7 +149,7 @@ Expose CRUD operations via JSON REST API.
 
 ---
 
-## ✅ 7. Input Validation Improvements
+## ❌ 7. Input Validation Improvements
 
 ### Description
 Add stronger validation for amount, category, date, and description.
@@ -171,7 +172,7 @@ Add stronger validation for amount, category, date, and description.
 
 ---
 
-## ✅ 8. UI Improvements with Bootstrap
+## ❌ 8. UI Improvements with Bootstrap
 
 ### Description
 Improve layout and usability using Bootstrap.
@@ -191,7 +192,7 @@ Improve layout and usability using Bootstrap.
 
 ---
 
-## ✅ 9. Dashboard with Charts
+## ❌ 9. Dashboard with Charts
 
 ### Description
 Add a dashboard showing spending by category or month.
@@ -211,7 +212,7 @@ Add a dashboard showing spending by category or month.
 
 ---
 
-## ✅ 10. Multi-user Support
+## ❌ 10. Multi-user Support
 
 ### Description
 Allow each user to have their own expenses.

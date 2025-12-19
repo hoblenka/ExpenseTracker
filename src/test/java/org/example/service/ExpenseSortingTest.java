@@ -14,11 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ExpenseSortingTest {
 
-    private ExpenseService expenseService;
+    private ExpenseSortService sortService;
 
     @BeforeEach
     void setUp() {
-        expenseService = new ExpenseService(null);
+        sortService = new ExpenseSortService();
     }
 
     @Test
@@ -29,7 +29,7 @@ public class ExpenseSortingTest {
             createExpense(3L, "C", "30.00", ExpenseCategory.UTILITIES, LocalDate.now())
         );
 
-        List<Expense> result = expenseService.sortExpenses(expenses, "amount");
+        List<Expense> result = sortService.sortExpenses(expenses, "amount");
 
         assertEquals(new BigDecimal("10.00"), result.get(0).getAmount());
         assertEquals(new BigDecimal("30.00"), result.get(1).getAmount());
@@ -44,7 +44,7 @@ public class ExpenseSortingTest {
             createExpense(3L, "C", "30.00", ExpenseCategory.UTILITIES, LocalDate.of(2024, 2, 1))
         );
 
-        List<Expense> result = expenseService.sortExpenses(expenses, "date");
+        List<Expense> result = sortService.sortExpenses(expenses, "date");
 
         assertEquals(LocalDate.of(2024, 1, 1), result.get(0).getDate());
         assertEquals(LocalDate.of(2024, 2, 1), result.get(1).getDate());
@@ -59,7 +59,7 @@ public class ExpenseSortingTest {
             createExpense(3L, "Banana", "30.00", ExpenseCategory.UTILITIES, LocalDate.now())
         );
 
-        List<Expense> result = expenseService.sortExpenses(expenses, "description");
+        List<Expense> result = sortService.sortExpenses(expenses, "description");
 
         assertEquals("apple", result.get(0).getDescription());
         assertEquals("Banana", result.get(1).getDescription());
@@ -74,7 +74,7 @@ public class ExpenseSortingTest {
             createExpense(3L, "C", "30.00", ExpenseCategory.TRANSPORT, LocalDate.now())
         );
 
-        List<Expense> result = expenseService.sortExpenses(expenses, "category");
+        List<Expense> result = sortService.sortExpenses(expenses, "category");
 
         assertEquals(ExpenseCategory.FOOD, result.get(0).getCategory());
         assertEquals(ExpenseCategory.TRANSPORT, result.get(1).getCategory());
@@ -89,7 +89,7 @@ public class ExpenseSortingTest {
             createExpense(2L, "C", "30.00", ExpenseCategory.UTILITIES, LocalDate.now())
         );
 
-        List<Expense> result = expenseService.sortExpenses(expenses, "id");
+        List<Expense> result = sortService.sortExpenses(expenses, "id");
 
         assertEquals(1L, result.get(0).getId());
         assertEquals(2L, result.get(1).getId());
@@ -103,7 +103,7 @@ public class ExpenseSortingTest {
             createExpense(2L, "B", "20.00", ExpenseCategory.TRANSPORT, LocalDate.now())
         );
 
-        List<Expense> result = expenseService.sortExpenses(expenses, "invalid");
+        List<Expense> result = sortService.sortExpenses(expenses, "invalid");
 
         assertEquals(expenses, result);
     }
@@ -112,7 +112,7 @@ public class ExpenseSortingTest {
     void testSortExpensesEmptyList() {
         List<Expense> expenses = List.of();
 
-        List<Expense> result = expenseService.sortExpenses(expenses, "amount");
+        List<Expense> result = sortService.sortExpenses(expenses, "amount");
 
         assertTrue(result.isEmpty());
     }

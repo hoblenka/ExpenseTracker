@@ -1,11 +1,10 @@
 package org.example.controller;
 
-import org.example.service.ExpenseService;
+import org.example.service.ExpenseCrudService;
+import org.example.service.ExpenseFilterService;
+import org.example.service.ExpenseSortService;
 import org.example.model.Expense;
 import org.example.model.ExpenseCategory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +15,18 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-/*
-JSP views will resolve correctly when you run the application.
-IntelliJ just can't validate JSP paths at compile time in Spring Boot projects.
-*/
 public class WebExpenseController {
     
-    private final ExpenseService expenseService;
+    private final ExpenseCrudService crudService;
+    private final ExpenseFilterService filterService;
+    private final ExpenseSortService sortService;
     private final ExpenseController expenseController;
 
-    public WebExpenseController(ExpenseService expenseService, ExpenseController expenseController) {
-        this.expenseService = expenseService;
+    public WebExpenseController(ExpenseCrudService crudService, ExpenseFilterService filterService,
+                                ExpenseSortService sortService, ExpenseController expenseController) {
+        this.crudService = crudService;
+        this.filterService = filterService;
+        this.sortService = sortService;
         this.expenseController = expenseController;
     }
 
@@ -39,10 +39,10 @@ public class WebExpenseController {
         LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
         LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
         
-        List<Expense> expenses = expenseService.getFilteredExpenses(start, end, category);
+        List<Expense> expenses = filterService.getFilteredExpenses(start, end, category);
         
         if (sortBy != null && !sortBy.trim().isEmpty()) {
-            expenses = expenseService.sortExpenses(expenses, sortBy.trim());
+            expenses = sortService.sortExpenses(expenses, sortBy.trim());
         }
         
         BigDecimal totalAmount = expenses.stream()
@@ -77,7 +77,7 @@ public class WebExpenseController {
             expense.setCategory(ExpenseCategory.fromString(category));
             expense.setDate(LocalDate.parse(date));
             
-            expenseService.saveExpense(expense);
+            crudService.saveExpense(expense);
             return "redirect:/expenses";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
@@ -91,7 +91,7 @@ public class WebExpenseController {
 
     @GetMapping("/expenses/edit")
     public String showEditForm(@RequestParam Long id, Model model) {
-        Expense expense = expenseService.getExpenseById(id);
+        Expense expense = crudService.getExpenseById(id);
         model.addAttribute("expense", expense);
         return "edit";
     }
@@ -111,10 +111,10 @@ public class WebExpenseController {
             expense.setCategory(ExpenseCategory.fromString(category));
             expense.setDate(LocalDate.parse(date));
             
-            expenseService.updateExpense(expense);
+            crudService.updateExpense(expense);
             return "redirect:/expenses";
         } catch (IllegalArgumentException e) {
-            Expense expense = expenseService.getExpenseById(id);
+            Expense expense = crudService.getExpenseById(id);
             model.addAttribute("expense", expense);
             model.addAttribute("error", e.getMessage());
             return "edit";
@@ -123,7 +123,7 @@ public class WebExpenseController {
 
     @GetMapping("/expenses/delete")
     public String deleteExpense(@RequestParam Long id) {
-        expenseService.deleteExpense(id);
+        crudService.deleteExpense(id);
         return "redirect:/expenses";
     }
 
@@ -134,13 +134,13 @@ public class WebExpenseController {
 
     @GetMapping("/expenses/deleteAll")
     public String deleteAllExpenses() {
-        expenseService.deleteAllExpenses();
+        crudService.deleteAllExpenses();
         return "redirect:/expenses";
     }
 
     @GetMapping("/expenses/addRandom")
     public String addRandomExpense() {
-        expenseService.addRandomExpense();
+        crudService.addRandomExpense();
         return "redirect:/expenses";
     }
 
@@ -148,7 +148,7 @@ public class WebExpenseController {
     public String filterExpensesByDateRange(@RequestParam String startDate,
                                           @RequestParam String endDate,
                                           Model model) {
-        List<Expense> expenses = expenseService.getFilteredExpenses(
+        List<Expense> expenses = filterService.getFilteredExpenses(
             LocalDate.parse(startDate), LocalDate.parse(endDate), null);
         
         BigDecimal totalAmount = expenses.stream()

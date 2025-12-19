@@ -1,6 +1,6 @@
 package org.example.controller;
 
-import org.example.service.ExpenseService;
+import org.example.service.CsvExportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +13,10 @@ import java.time.LocalDate;
 @Controller
 public class CsvExportController {
     
-    private final ExpenseService expenseService;
+    private final CsvExportService csvExportService;
     
-    public CsvExportController(ExpenseService expenseService) {
-        this.expenseService = expenseService;
+    public CsvExportController(CsvExportService csvExportService) {
+        this.csvExportService = csvExportService;
     }
     
     @GetMapping("/expenses/export")
@@ -29,7 +29,7 @@ public class CsvExportController {
             LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
             LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
             
-            String csv = expenseService.exportFilteredToCsv(start, end, category);
+            String csv = csvExportService.exportFilteredToCsv(start, end, category);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("text/csv"));

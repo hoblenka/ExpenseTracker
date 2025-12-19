@@ -1,7 +1,9 @@
 package org.example.controller;
 
 import org.example.model.Expense;
-import org.example.service.ExpenseService;
+import org.example.service.ExpenseCrudService;
+import org.example.service.ExpenseFilterService;
+import org.example.service.ExpenseSortService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
@@ -12,18 +14,20 @@ import java.util.List;
 import org.springframework.web.util.HtmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/expenses")
 public class ExpenseController {
     
     private static final Logger logger = LoggerFactory.getLogger(ExpenseController.class);
-    private final ExpenseService expenseService;
+    private final ExpenseCrudService crudService;
+    private final ExpenseFilterService filterService;
+    private final ExpenseSortService sortService;
     
-    public ExpenseController(ExpenseService expenseService) {
-        this.expenseService = expenseService;
+    public ExpenseController(ExpenseCrudService crudService, ExpenseFilterService filterService, ExpenseSortService sortService) {
+        this.crudService = crudService;
+        this.filterService = filterService;
+        this.sortService = sortService;
     }
     
     @GetMapping
@@ -32,13 +36,13 @@ public class ExpenseController {
         try {
             List<Expense> expenses;
             if (category != null && !category.trim().isEmpty()) {
-                expenses = expenseService.getExpensesByCategory(category.trim());
+                expenses = filterService.filterExpensesByCategory(category.trim());
             } else {
-                expenses = expenseService.getAllExpenses();
+                expenses = crudService.getAllExpenses();
             }
             
             if (sortBy != null && !sortBy.trim().isEmpty()) {
-                expenses = expenseService.sortExpenses(expenses, sortBy.trim());
+                expenses = sortService.sortExpenses(expenses, sortBy.trim());
             }
             
             return ResponseEntity.ok(expenses);
@@ -67,7 +71,7 @@ public class ExpenseController {
                 expense.getDate()
             );
             
-            expenseService.saveExpense(cleanExpense);
+            crudService.saveExpense(cleanExpense);
             //Changing return type to ResponseEntity<Void> to avoid returning any potentially tainted data
             return ResponseEntity.status(201).build();
         } catch (Exception e) {
@@ -82,7 +86,7 @@ public class ExpenseController {
             if (id == null || id <= 0) {
                 return ResponseEntity.badRequest().build();
             }
-            Expense expense = expenseService.getExpenseById(id);
+            Expense expense = crudService.getExpenseById(id);
             return expense != null ? ResponseEntity.ok(expense) : ResponseEntity.notFound().build();
         } catch (Exception e) {
             logger.error("Failed to get expense by id {}: {}", id, e.getMessage(), e);
@@ -96,7 +100,7 @@ public class ExpenseController {
             if (id == null || id <= 0) {
                 return ResponseEntity.badRequest().build();
             }
-            expenseService.deleteExpense(id);
+            crudService.deleteExpense(id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Failed to delete expense by id {}: {}", id, e.getMessage(), e);
@@ -111,7 +115,7 @@ public class ExpenseController {
                 return ResponseEntity.badRequest().build();
             }
             String trimmedCategory = category.trim();
-            return ResponseEntity.ok(expenseService.getExpensesByCategory(trimmedCategory));
+            return ResponseEntity.ok(filterService.filterExpensesByCategory(trimmedCategory));
         } catch (Exception e) {
             logger.error("Failed to get expenses by category '{}': {}", category, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
@@ -121,7 +125,7 @@ public class ExpenseController {
     @DeleteMapping
     public ResponseEntity<Void> deleteAllExpenses() {
         try {
-            expenseService.deleteAllExpenses();
+            crudService.deleteAllExpenses();
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Failed to delete all expenses: {}", e.getMessage(), e);
@@ -132,7 +136,7 @@ public class ExpenseController {
     @PostMapping("/random")
     public ResponseEntity<Void> addRandomExpense() {
         try {
-            expenseService.addRandomExpense();
+            crudService.addRandomExpense();
             return ResponseEntity.status(201).build();
         } catch (Exception e) {
             logger.error("Failed to add random expense: {}", e.getMessage(), e);
@@ -143,7 +147,7 @@ public class ExpenseController {
     @GetMapping("/total")
     public ResponseEntity<BigDecimal> getTotalAmount() {
         try {
-            return ResponseEntity.ok(expenseService.getTotalAmount());
+            return ResponseEntity.ok(crudService.getTotalAmount());
         } catch (Exception e) {
             logger.error("Failed to get total amount: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
@@ -157,24 +161,10 @@ public class ExpenseController {
         try {
             LocalDate start = startDate != null ? LocalDate.parse(startDate) : null;
             LocalDate end = endDate != null ? LocalDate.parse(endDate) : null;
-            return ResponseEntity.ok(expenseService.getExpensesByDateRange(start, end));
+            return ResponseEntity.ok(filterService.filterExpensesByDateRange(start, end));
         } catch (Exception e) {
             logger.error("Failed to filter expenses by date range: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().build();
-        }
-    }
-
-    @GetMapping("/export")
-    public ResponseEntity<String> exportExpensesToCsv() {
-        try {
-            String csv = expenseService.exportToCsv();
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.parseMediaType("text/csv"));
-            headers.setContentDispositionFormData("attachment", "expenses.csv");
-            return ResponseEntity.ok().headers(headers).body(csv);
-        } catch (Exception e) {
-            logger.error("Failed to export expenses to CSV: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError().build();
         }
     }
 

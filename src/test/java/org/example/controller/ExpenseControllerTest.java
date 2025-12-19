@@ -2,7 +2,9 @@ package org.example.controller;
 
 import org.example.model.Expense;
 import org.example.model.ExpenseCategory;
-import org.example.service.ExpenseService;
+import org.example.service.ExpenseCrudService;
+import org.example.service.ExpenseFilterService;
+import org.example.service.ExpenseSortService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +24,13 @@ import static org.mockito.Mockito.*;
 class ExpenseControllerTest {
 
     @Mock
-    private ExpenseService mockExpenseService;
+    private ExpenseCrudService mockExpenseCrudService;
+    
+    @Mock
+    private ExpenseFilterService mockFilterService;
+    
+    @Mock
+    private ExpenseSortService mockSortService;
 
     @InjectMocks
     private ExpenseController expenseController;
@@ -34,7 +42,7 @@ class ExpenseControllerTest {
             new Expense("Bus ticket", new BigDecimal("3.00"), ExpenseCategory.TRANSPORT, LocalDate.now())
         );
         
-        when(mockExpenseService.getAllExpenses()).thenReturn(mockExpenses);
+        when(mockExpenseCrudService.getAllExpenses()).thenReturn(mockExpenses);
 
         ResponseEntity<List<Expense>> response = expenseController.getAllExpenses();
 
@@ -43,14 +51,14 @@ class ExpenseControllerTest {
         assertEquals(2, response.getBody().size());
         assertEquals("Coffee", response.getBody().get(0).getDescription());
         
-        verify(mockExpenseService).getAllExpenses();
+        verify(mockExpenseCrudService).getAllExpenses();
     }
 
     @Test
     void testGetExpenseById() {
         Expense mockExpense = new Expense("Lunch", new BigDecimal("12.50"), ExpenseCategory.FOOD, LocalDate.now());
         
-        when(mockExpenseService.getExpenseById(1L)).thenReturn(mockExpense);
+        when(mockExpenseCrudService.getExpenseById(1L)).thenReturn(mockExpense);
 
         ResponseEntity<Expense> response = expenseController.getExpenseById(1L);
 
@@ -58,43 +66,43 @@ class ExpenseControllerTest {
         assertNotNull(response.getBody());
         assertEquals("Lunch", response.getBody().getDescription());
         
-        verify(mockExpenseService).getExpenseById(1L);
+        verify(mockExpenseCrudService).getExpenseById(1L);
     }
 
     @Test
     void testGetExpenseByIdNotFound() {
-        when(mockExpenseService.getExpenseById(999L)).thenReturn(null);
+        when(mockExpenseCrudService.getExpenseById(999L)).thenReturn(null);
 
         ResponseEntity<Expense> response = expenseController.getExpenseById(999L);
 
         assertEquals(404, response.getStatusCode().value());
         
-        verify(mockExpenseService).getExpenseById(999L);
+        verify(mockExpenseCrudService).getExpenseById(999L);
     }
 
     @Test
     void testDeleteExpense() {
-        doNothing().when(mockExpenseService).deleteExpense(1L);
+        doNothing().when(mockExpenseCrudService).deleteExpense(1L);
 
         ResponseEntity<Void> response = expenseController.deleteExpense(1L);
 
         assertEquals(200, response.getStatusCode().value());
         
-        verify(mockExpenseService).deleteExpense(1L);
+        verify(mockExpenseCrudService).deleteExpense(1L);
     }
 
     @Test
     void testGetTotalAmount() {
         BigDecimal mockTotal = new BigDecimal("150.75");
         
-        when(mockExpenseService.getTotalAmount()).thenReturn(mockTotal);
+        when(mockExpenseCrudService.getTotalAmount()).thenReturn(mockTotal);
 
         ResponseEntity<BigDecimal> response = expenseController.getTotalAmount();
 
         assertEquals(200, response.getStatusCode().value());
         assertEquals(mockTotal, response.getBody());
         
-        verify(mockExpenseService).getTotalAmount();
+        verify(mockExpenseCrudService).getTotalAmount();
     }
 
     @Test
@@ -103,7 +111,7 @@ class ExpenseControllerTest {
             new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now())
         );
         
-        when(mockExpenseService.getExpensesByCategory("Food")).thenReturn(mockExpenses);
+        when(mockFilterService.filterExpensesByCategory("Food")).thenReturn(mockExpenses);
 
         ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory("Food");
 
@@ -111,7 +119,7 @@ class ExpenseControllerTest {
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
         
-        verify(mockExpenseService).getExpensesByCategory("Food");
+        verify(mockFilterService).filterExpensesByCategory("Food");
     }
 
     @Test

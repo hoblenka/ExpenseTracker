@@ -20,13 +20,15 @@ public class CsvExportTest {
     
     @Mock
     private ExpenseDAO expenseDAO;
-    
-    private ExpenseService expenseService;
+
+    private CsvExportService csvExportService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        expenseService = new ExpenseService(expenseDAO);
+        ExpenseCrudService crudService = new ExpenseCrudService(expenseDAO);
+        ExpenseFilterService filterService = new ExpenseFilterService(crudService);
+        csvExportService = new CsvExportService(crudService, filterService);
     }
 
     @Test
@@ -38,7 +40,7 @@ public class CsvExportTest {
         
         when(expenseDAO.findAll()).thenReturn(expenses);
 
-        String csv = expenseService.exportToCsv();
+        String csv = csvExportService.exportAllToCsv();
 
         assertTrue(csv.contains("ID,Description,Amount,Category,Date"));
         assertTrue(csv.contains("1,Lunch,15.00,Food,2024-01-15"));
@@ -55,7 +57,7 @@ public class CsvExportTest {
         
         when(expenseDAO.findAll()).thenReturn(expenses);
 
-        String csv = expenseService.exportFilteredToCsv(null, null, "Food");
+        String csv = csvExportService.exportFilteredToCsv(null, null, "Food");
 
         assertTrue(csv.contains("Lunch"));
         assertTrue(csv.contains("Dinner"));
@@ -74,7 +76,7 @@ public class CsvExportTest {
         
         when(expenseDAO.findAll()).thenReturn(expenses);
 
-        String csv = expenseService.exportFilteredToCsv(startDate, endDate, null);
+        String csv = csvExportService.exportFilteredToCsv(startDate, endDate, null);
 
         assertTrue(csv.contains("Lunch"));
         assertFalse(csv.contains("Bus"));
@@ -84,7 +86,7 @@ public class CsvExportTest {
     void testExportEmptyList() {
         when(expenseDAO.findAll()).thenReturn(List.of());
 
-        String csv = expenseService.exportToCsv();
+        String csv = csvExportService.exportAllToCsv();
 
         assertEquals("ID,Description,Amount,Category,Date\n", csv);
     }
@@ -97,7 +99,7 @@ public class CsvExportTest {
         
         when(expenseDAO.findAll()).thenReturn(expenses);
 
-        String csv = expenseService.exportToCsv();
+        String csv = csvExportService.exportAllToCsv();
 
         String[] lines = csv.split("\n");
         assertEquals(2, lines.length);
@@ -118,7 +120,7 @@ public class CsvExportTest {
         
         when(expenseDAO.findAll()).thenReturn(expenses);
 
-        String csv = expenseService.exportFilteredToCsv(startDate, endDate, "Food");
+        String csv = csvExportService.exportFilteredToCsv(startDate, endDate, "Food");
 
         assertTrue(csv.contains("Lunch"));
         assertFalse(csv.contains("Bus"));

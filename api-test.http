@@ -1,0 +1,67 @@
+### Get all expenses
+GET http://localhost:8080/api/expenses
+
+### Get expense by ID
+GET http://localhost:8080/api/expenses/1
+
+### Create new expense - Lunch
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+
+{
+  "description": "Lunch",
+  "amount": 12.50,
+  "category": "Food",
+  "date": "2024-12-19"
+}
+
+### Create new expense - Coffee
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+
+{
+  "description": "Coffee",
+  "amount": 5.00,
+  "category": "Food",
+  "date": "2024-12-19"
+}
+
+### Create new expense - Bus ticket
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+
+{
+  "description": "Bus ticket",
+  "amount": 3.50,
+  "category": "Transport",
+  "date": "2024-12-19"
+}
+
+### Create expense with invalid category (should fail)
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+
+{
+  "description": "Invalid test",
+  "amount": 10.00,
+  "category": "InvalidCategory",
+  "date": "2024-12-19"
+}
+
+### Get expenses by category - Food
+GET http://localhost:8080/api/expenses/category/Food
+
+### Get expenses by category - Transport
+GET http://localhost:8080/api/expenses/category/Transport
+
+### Delete expense by ID
+DELETE http://localhost:8080/api/expenses/1
+
+### Delete all expenses
+DELETE http://localhost:8080/api/expenses
+
+### Get total amount of all expenses
+GET http://localhost:8080/api/expenses/total
+
+### Add random expense
+POST http://localhost:8080/api/expenses/random

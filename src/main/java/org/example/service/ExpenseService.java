@@ -1,0 +1,70 @@
+package org.example.service;
+
+import org.example.dao.ExpenseDAO;
+import org.example.model.Expense;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+public class ExpenseService {
+    
+    private final ExpenseDAO expenseDAO;
+
+    public ExpenseService(ExpenseDAO expenseDAO) {
+        this.expenseDAO = expenseDAO;
+    }
+
+    public List<Expense> getAllExpenses() {
+        return expenseDAO.findAll();
+    }
+
+    public Expense getExpenseById(Long id) {
+        return expenseDAO.findById(id);
+    }
+
+    public void saveExpense(Expense expense) {
+        expenseDAO.save(expense);
+    }
+
+    public void updateExpense(Expense expense) {
+        expenseDAO.update(expense);
+    }
+
+    public void deleteExpense(Long id) {
+        expenseDAO.deleteById(id);
+    }
+
+    public List<Expense> getExpensesByCategory(String category) {
+        return expenseDAO.findByCategory(category);
+    }
+
+    public void deleteAllExpenses() {
+        expenseDAO.deleteAll();
+    }
+
+    public BigDecimal getTotalAmount() {
+        return getAllExpenses().stream()
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void addRandomExpense() {
+        String[] categories = {"Food", "Transport", "Utilities", "Entertainment", "Shopping", "Rent", "Other"};
+        String[] descriptions = {
+            "Lunch", "Coffee", "Groceries", "Bus ticket", "Taxi", "Gas bill", "Movie ticket", 
+            "Shopping", "Dinner", "Breakfast", "Electricity bill", "Water bill", "Rent payment"
+        };
+        
+        java.util.Random random = new java.util.Random();
+        String category = categories[random.nextInt(categories.length)];
+        String description = descriptions[random.nextInt(descriptions.length)];
+        BigDecimal amount = BigDecimal.valueOf(5 + random.nextDouble() * 95).setScale(2, java.math.RoundingMode.HALF_UP);
+        LocalDate date = LocalDate.now().minusDays(random.nextInt(30));
+        
+        Expense expense = new Expense(description, amount, category, date);
+        saveExpense(expense);
+    }
+}

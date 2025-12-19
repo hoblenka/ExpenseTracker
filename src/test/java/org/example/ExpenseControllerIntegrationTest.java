@@ -3,7 +3,7 @@ package org.example;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.example.controller.ExpenseController;
 import org.example.model.Expense;
-import org.example.repository.ExpenseRepository;
+import org.example.service.ExpenseService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +28,7 @@ class ExpenseControllerIntegrationTest {
     }
 
     @Autowired
-    private ExpenseRepository expenseRepository;
+    private ExpenseService expenseService;
 
     @Autowired
     private ExpenseController expenseController;
@@ -37,8 +37,8 @@ class ExpenseControllerIntegrationTest {
     @Rollback
     void testRealDatabaseConnection() {
         // Save expense to real MySQL database
-        Expense expense = new Expense("MySQL Database Test", new BigDecimal("10.00"), "Testing", LocalDate.now());
-        expenseRepository.save(expense);
+        Expense expense = new Expense("MySQL Database Test", new BigDecimal("10.00"), "Other", LocalDate.now());
+        expenseService.saveExpense(expense);
         
         // Retrieve from database through controller
         List<Expense> result = expenseController.getAllExpenses().getBody();
@@ -51,31 +51,35 @@ class ExpenseControllerIntegrationTest {
     @Test
     @Rollback
     void testDatabasePersistence() {
-        long initialCount = expenseRepository.count();
+        int initialCount = expenseService.getAllExpenses().size();
         
-        Expense expense1 = new Expense("MySQL Integration 1", new BigDecimal("25.50"), "Database", LocalDate.now());
-        Expense expense2 = new Expense("MySQL Integration 2", new BigDecimal("15.75"), "Database", LocalDate.now());
+        Expense expense1 = new Expense("MySQL Integration 1", new BigDecimal("25.50"), "Other", LocalDate.now());
+        Expense expense2 = new Expense("MySQL Integration 2", new BigDecimal("15.75"), "Other", LocalDate.now());
         
-        expenseRepository.saveAll(List.of(expense1, expense2));
+        expenseService.saveExpense(expense1);
+        expenseService.saveExpense(expense2);
         
-        assertEquals(initialCount + 2, expenseRepository.count());
+        assertEquals(initialCount + 2, expenseService.getAllExpenses().size());
         
-        List<Expense> testExpenses = expenseRepository.findByDescriptionStartingWith("MySQL Integration");
+        List<Expense> allExpenses = expenseService.getAllExpenses();
+        long testExpensesCount = allExpenses.stream()
+                .filter(e -> e.getDescription().startsWith("MySQL Integration"))
+                .count();
         
-        assertEquals(2, testExpenses.size());
+        assertEquals(2, testExpensesCount);
     }
 
     @Test
     void testDatabaseConnectionActive() {
         // Verify database connection is working
-        assertTrue(expenseRepository.count() >= 0);
+        List<Expense> expenses = expenseService.getAllExpenses();
+        assertNotNull(expenses);
         
-        Expense testExpense = new Expense("Connection Test", new BigDecimal("1.00"), "Test", LocalDate.now());
-        Expense saved = expenseRepository.save(testExpense);
+        Expense testExpense = new Expense("Connection Test", new BigDecimal("1.00"), "Other", LocalDate.now());
+        expenseService.saveExpense(testExpense);
 
-        assertNotNull(saved.getId());
-        assertTrue(expenseRepository.existsById(saved.getId()));
-        
-        expenseRepository.delete(saved);
+        List<Expense> updatedExpenses = expenseService.getAllExpenses();
+        assertTrue(updatedExpenses.stream()
+                .anyMatch(e -> "Connection Test".equals(e.getDescription())));
     }
 }

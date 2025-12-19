@@ -1,10 +1,12 @@
 package org.example.controller;
 
 import org.example.model.Expense;
-import org.example.repository.ExpenseRepository;
+import org.example.service.ExpenseService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
+
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.web.util.HtmlUtils;
 import org.slf4j.Logger;
@@ -15,16 +17,16 @@ import org.slf4j.LoggerFactory;
 public class ExpenseController {
     
     private static final Logger logger = LoggerFactory.getLogger(ExpenseController.class);
-    private final ExpenseRepository expenseRepository;
+    private final ExpenseService expenseService;
     
-    public ExpenseController(ExpenseRepository expenseRepository) {
-        this.expenseRepository = expenseRepository;
+    public ExpenseController(ExpenseService expenseService) {
+        this.expenseService = expenseService;
     }
     
     @GetMapping
     public ResponseEntity<List<Expense>> getAllExpenses() {
         try {
-            return ResponseEntity.ok(expenseRepository.findAll());
+            return ResponseEntity.ok(expenseService.getAllExpenses());
         } catch (Exception e) {
             logger.error("Failed to get all expenses: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
@@ -46,7 +48,7 @@ public class ExpenseController {
                 expense.getDate()
             );
             
-            expenseRepository.save(cleanExpense);
+            expenseService.saveExpense(cleanExpense);
             //Changing return type to ResponseEntity<Void> to avoid returning any potentially tainted data
             return ResponseEntity.status(201).build();
         } catch (Exception e) {
@@ -61,9 +63,8 @@ public class ExpenseController {
             if (id == null || id <= 0) {
                 return ResponseEntity.badRequest().build();
             }
-            return expenseRepository.findById(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            Expense expense = expenseService.getExpenseById(id);
+            return expense != null ? ResponseEntity.ok(expense) : ResponseEntity.notFound().build();
         } catch (Exception e) {
             logger.error("Failed to get expense by id {}: {}", id, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
@@ -76,7 +77,7 @@ public class ExpenseController {
             if (id == null || id <= 0) {
                 return ResponseEntity.badRequest().build();
             }
-            expenseRepository.deleteById(id);
+            expenseService.deleteExpense(id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Failed to delete expense by id {}: {}", id, e.getMessage(), e);
@@ -91,10 +92,42 @@ public class ExpenseController {
                 return ResponseEntity.badRequest().build();
             }
             String trimmedCategory = category.trim();
-            List<Expense> expenses = expenseRepository.findByCategory(trimmedCategory);
-            return ResponseEntity.ok(expenses);
+            return ResponseEntity.ok(expenseService.getExpensesByCategory(trimmedCategory));
         } catch (Exception e) {
-            logger.error("Failed to get expenses by category {}: {}", category.replaceAll("[\\r\\n\\t\\f\\b\\u001B\\u009B]", "_"), e.getMessage(), e);
+            assert category != null;
+            logger.error("Failed to get expenses by category '{}': {}", category.replaceAll("[\r\n\t]", "_"), e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deleteAllExpenses() {
+        try {
+            expenseService.deleteAllExpenses();
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error("Failed to delete all expenses: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PostMapping("/random")
+    public ResponseEntity<Void> addRandomExpense() {
+        try {
+            expenseService.addRandomExpense();
+            return ResponseEntity.status(201).build();
+        } catch (Exception e) {
+            logger.error("Failed to add random expense: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/total")
+    public ResponseEntity<BigDecimal> getTotalAmount() {
+        try {
+            return ResponseEntity.ok(expenseService.getTotalAmount());
+        } catch (Exception e) {
+            logger.error("Failed to get total amount: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }

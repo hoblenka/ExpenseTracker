@@ -53,8 +53,14 @@ public class Expense {
 
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { 
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Amount cannot be null or negative");
+        if (amount == null) {
+            throw new IllegalArgumentException("Amount cannot be null");
+        }
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than 0");
+        }
+        if (amount.compareTo(new BigDecimal("99999999.99")) > 0) {
+            throw new IllegalArgumentException("Amount cannot exceed 99,999,999.99");
         }
         this.amount = amount; 
     }
@@ -63,6 +69,9 @@ public class Expense {
     public void setCategory(String category) { 
         if (category == null || category.trim().isEmpty()) {
             throw new IllegalArgumentException("Category cannot be null or empty");
+        }
+        if (!ExpenseCategory.isValid(category.trim())) {
+            throw new IllegalArgumentException("Invalid category. Must be one of: Food, Transport, Utilities, Entertainment, Shopping, Rent, Other");
         }
         this.category = category.trim(); 
     }

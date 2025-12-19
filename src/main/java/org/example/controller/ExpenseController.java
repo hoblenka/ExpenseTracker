@@ -44,7 +44,7 @@ public class ExpenseController {
             Expense cleanExpense = new Expense(
                 HtmlUtils.htmlEscape(expense.getDescription()),
                 expense.getAmount(),
-                HtmlUtils.htmlEscape(expense.getCategory()),
+                expense.getCategory(),
                 expense.getDate()
             );
             
@@ -94,8 +94,7 @@ public class ExpenseController {
             String trimmedCategory = category.trim();
             return ResponseEntity.ok(expenseService.getExpensesByCategory(trimmedCategory));
         } catch (Exception e) {
-            assert category != null;
-            logger.error("Failed to get expenses by category '{}': {}", category.replaceAll("[\r\n\t]", "_"), e.getMessage(), e);
+            logger.error("Failed to get expenses by category '{}': {}", category, e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }

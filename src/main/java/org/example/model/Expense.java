@@ -19,14 +19,15 @@ public class Expense {
     private BigDecimal amount;
     
     @Column(nullable = false)
-    private String category;
+    @Enumerated(EnumType.STRING)
+    private ExpenseCategory category;
     
     @Column(nullable = false)
     private LocalDate date;
 
     public Expense() {}
 
-    public Expense(String description, BigDecimal amount, String category, LocalDate date) {
+    public Expense(String description, BigDecimal amount, ExpenseCategory category, LocalDate date) {
         try {
             setDescription(description);
             setAmount(amount);
@@ -65,15 +66,16 @@ public class Expense {
         this.amount = amount; 
     }
 
-    public String getCategory() { return category; }
-    public void setCategory(String category) { 
-        if (category == null || category.trim().isEmpty()) {
-            throw new IllegalArgumentException("Category cannot be null or empty");
+    public ExpenseCategory getCategory() { return category; }
+    public void setCategory(ExpenseCategory category) { 
+        if (category == null) {
+            throw new IllegalArgumentException("Category cannot be null");
         }
-        if (!ExpenseCategory.isValid(category.trim())) {
-            throw new IllegalArgumentException("Invalid category. Must be one of: Food, Transport, Utilities, Entertainment, Shopping, Rent, Other");
-        }
-        this.category = category.trim(); 
+        this.category = category; 
+    }
+
+    public String getCategoryDisplayName() { 
+        return category != null ? category.getDisplayName() : null; 
     }
 
     public LocalDate getDate() { return date; }

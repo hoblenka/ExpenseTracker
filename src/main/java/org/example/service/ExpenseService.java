@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dao.ExpenseDAO;
 import org.example.model.Expense;
+import org.example.model.ExpenseCategory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -52,14 +53,14 @@ public class ExpenseService {
     }
 
     public void addRandomExpense() {
-        String[] categories = {"Food", "Transport", "Utilities", "Entertainment", "Shopping", "Rent", "Other"};
+        ExpenseCategory[] categories = ExpenseCategory.values();
         String[] descriptions = {
             "Lunch", "Coffee", "Groceries", "Bus ticket", "Taxi", "Gas bill", "Movie ticket", 
             "Shopping", "Dinner", "Breakfast", "Electricity bill", "Water bill", "Rent payment"
         };
         
         java.util.Random random = new java.util.Random();
-        String category = categories[random.nextInt(categories.length)];
+        ExpenseCategory category = categories[random.nextInt(categories.length)];
         String description = descriptions[random.nextInt(descriptions.length)];
         BigDecimal amount = BigDecimal.valueOf(5 + random.nextDouble() * 95).setScale(2, java.math.RoundingMode.HALF_UP);
         LocalDate date = LocalDate.now().minusDays(random.nextInt(30));

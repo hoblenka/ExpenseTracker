@@ -34,13 +34,13 @@
             <div class="mb-3">
                 <label for="category" class="form-label">Category</label>
                 <select class="form-control" id="category" name="category" required>
-                    <option value="Food" ${expense.category == 'Food' ? 'selected' : ''}>Food</option>
-                    <option value="Transport" ${expense.category == 'Transport' ? 'selected' : ''}>Transport</option>
-                    <option value="Utilities" ${expense.category == 'Utilities' ? 'selected' : ''}>Utilities</option>
-                    <option value="Entertainment" ${expense.category == 'Entertainment' ? 'selected' : ''}>Entertainment</option>
-                    <option value="Shopping" ${expense.category == 'Shopping' ? 'selected' : ''}>Shopping</option>
-                    <option value="Rent" ${expense.category == 'Rent' ? 'selected' : ''}>Rent</option>
-                    <option value="Other" ${expense.category == 'Other' ? 'selected' : ''}>Other</option>
+                    <option value="Food" ${expense.categoryDisplayName == 'Food' ? 'selected' : ''}>Food</option>
+                    <option value="Transport" ${expense.categoryDisplayName == 'Transport' ? 'selected' : ''}>Transport</option>
+                    <option value="Utilities" ${expense.categoryDisplayName == 'Utilities' ? 'selected' : ''}>Utilities</option>
+                    <option value="Entertainment" ${expense.categoryDisplayName == 'Entertainment' ? 'selected' : ''}>Entertainment</option>
+                    <option value="Shopping" ${expense.categoryDisplayName == 'Shopping' ? 'selected' : ''}>Shopping</option>
+                    <option value="Rent" ${expense.categoryDisplayName == 'Rent' ? 'selected' : ''}>Rent</option>
+                    <option value="Other" ${expense.categoryDisplayName == 'Other' ? 'selected' : ''}>Other</option>
                 </select>
             </div>
             

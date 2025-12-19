@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS expenses (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    amount DECIMAL(10,2) NOT NULL,
-    category VARCHAR(255) NOT NULL,
-    date DATE NOT NULL,
-    description TEXT
-);

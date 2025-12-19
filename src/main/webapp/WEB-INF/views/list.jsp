@@ -33,7 +33,7 @@
                         <td>${expense.id}</td>
                         <td>${expense.description}</td>
                         <td>$${expense.amount}</td>
-                        <td>${expense.category}</td>
+                        <td>${expense.categoryDisplayName}</td>
                         <td>${expense.date}</td>
                         <td>
                             <a href="${pageContext.request.contextPath}/expenses/edit?id=${expense.id}" class="btn btn-sm btn-warning">Edit</a>

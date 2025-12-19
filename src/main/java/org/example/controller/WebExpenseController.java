@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.service.ExpenseService;
 import org.example.model.Expense;
+import org.example.model.ExpenseCategory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ public class WebExpenseController {
             Expense expense = new Expense();
             expense.setDescription(description);
             expense.setAmount(amount);
-            expense.setCategory(category);
+            expense.setCategory(ExpenseCategory.fromString(category));
             expense.setDate(LocalDate.parse(date));
             
             expenseService.saveExpense(expense);
@@ -81,7 +82,7 @@ public class WebExpenseController {
             expense.setId(id);
             expense.setDescription(description);
             expense.setAmount(amount);
-            expense.setCategory(category);
+            expense.setCategory(ExpenseCategory.fromString(category));
             expense.setDate(LocalDate.parse(date));
             
             expenseService.updateExpense(expense);

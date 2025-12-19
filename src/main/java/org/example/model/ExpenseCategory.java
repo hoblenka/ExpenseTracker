@@ -28,4 +28,14 @@ public enum ExpenseCategory {
         }
         return false;
     }
+
+    public static ExpenseCategory fromString(String category) {
+        if (category == null) return null;
+        for (ExpenseCategory cat : values()) {
+            if (cat.displayName.equals(category)) {
+                return cat;
+            }
+        }
+        throw new IllegalArgumentException("Invalid category: " + category);
+    }
 }

@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import org.example.model.Expense;
+import org.example.model.ExpenseCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -60,7 +61,7 @@ public class ExpenseDAOImpl implements ExpenseDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setBigDecimal(1, expense.getAmount());
-            stmt.setString(2, expense.getCategory());
+            stmt.setString(2, expense.getCategoryDisplayName());
             stmt.setDate(3, Date.valueOf(expense.getDate()));
             stmt.setString(4, expense.getDescription());
             
@@ -78,7 +79,7 @@ public class ExpenseDAOImpl implements ExpenseDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setBigDecimal(1, expense.getAmount());
-            stmt.setString(2, expense.getCategory());
+            stmt.setString(2, expense.getCategoryDisplayName());
             stmt.setDate(3, Date.valueOf(expense.getDate()));
             stmt.setString(4, expense.getDescription());
             stmt.setLong(5, expense.getId());
@@ -140,7 +141,7 @@ public class ExpenseDAOImpl implements ExpenseDAO {
         Expense expense = new Expense();
         expense.setId(rs.getLong("id"));
         expense.setAmount(rs.getBigDecimal("amount"));
-        expense.setCategory(rs.getString("category"));
+        expense.setCategory(ExpenseCategory.fromString(rs.getString("category")));
         expense.setDate(rs.getDate("date").toLocalDate());
         expense.setDescription(rs.getString("description"));
         return expense;

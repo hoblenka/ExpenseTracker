@@ -31,6 +31,28 @@ public class ExpensePaginationService {
         
         return new PageResult<>(expenses, page, size, totalElements, totalPages);
     }
+    
+    public PageResult<Expense> getPageFromList(List<Expense> allExpenses, int page, int size) {
+        if (page < 0) page = 0;
+        if (size <= 0) size = DEFAULT_PAGE_SIZE;
+        
+        long totalElements = allExpenses.size();
+        int totalPages = totalElements == 0 ? 0 : (int) Math.ceil((double) totalElements / size);
+        
+        if (page >= totalPages && totalPages > 0) {
+            page = totalPages - 1;
+        }
+        
+        if (totalElements == 0) {
+            return new PageResult<>(List.of(), 0, size, 0, 0);
+        }
+        
+        int start = page * size;
+        int end = Math.min(start + size, allExpenses.size());
+        List<Expense> pageContent = allExpenses.subList(start, end);
+        
+        return new PageResult<>(pageContent, page, size, totalElements, totalPages);
+    }
 
     public record PageResult<T>(List<T> content, int currentPage, int pageSize, long totalElements, int totalPages) {
         public boolean hasNext() {

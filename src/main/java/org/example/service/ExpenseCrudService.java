@@ -27,6 +27,9 @@ public class ExpenseCrudService {
     }
 
     public void saveExpense(Expense expense) {
+        if (expense.getId() == null) {
+            expense.setId(idService.getNextAvailableId());
+        }
         expenseDAO.save(expense);
     }
 

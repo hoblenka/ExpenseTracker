@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ExpenseControllerAPITest {
 
-    private final ExpenseController expenseController = new ExpenseController(null, null, null);
+    private final ExpenseController expenseController = new ExpenseController(null, null, null, null);
 
     @Test
     void testGetExpenseByIdWithInvalidId() {

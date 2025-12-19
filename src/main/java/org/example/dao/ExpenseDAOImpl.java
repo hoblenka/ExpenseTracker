@@ -62,7 +62,7 @@ public class ExpenseDAOImpl implements ExpenseDAO {
     }
 
     @Override
-    public void save(Expense expense) {
+    public synchronized void save(Expense expense) {
         Long nextId = expenseIdService.getNextAvailableId();
         String sql = "INSERT INTO expenses (id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)";
 
@@ -82,7 +82,7 @@ public class ExpenseDAOImpl implements ExpenseDAO {
     }
 
     @Override
-    public void update(Expense expense) {
+    public synchronized void update(Expense expense) {
         String sql = "UPDATE expenses SET amount = ?, category = ?, date = ?, description = ? WHERE id = ?";
         
         try (Connection conn = dataSource.getConnection();
@@ -156,7 +156,7 @@ public class ExpenseDAOImpl implements ExpenseDAO {
     }
 
     @Override
-    public void deleteAll() {
+    public synchronized void deleteAll() {
         String sql = "DELETE FROM expenses";
         
         try (Connection conn = dataSource.getConnection();

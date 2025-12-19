@@ -45,38 +45,28 @@ public class WebExpenseController {
         LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
         LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
         
-        List<Expense> expenses;
+        List<Expense> allExpenses;
         if (start != null || end != null || (category != null && !category.isEmpty())) {
-            expenses = filterService.getFilteredExpenses(start, end, category);
-            if (sortBy != null && !sortBy.trim().isEmpty()) {
-                expenses = sortService.sortExpenses(expenses, sortBy.trim());
-            }
-            
-            BigDecimal totalAmount = expenses.stream()
-                    .map(Expense::getAmount)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    
-            model.addAttribute("expenses", expenses);
-            model.addAttribute("totalAmount", totalAmount);
-            model.addAttribute("isPaginated", false);
+            allExpenses = filterService.getFilteredExpenses(start, end, category);
         } else {
-            ExpensePaginationService.PageResult<Expense> pageResult = paginationService.getExpensesPage(page, size);
-            expenses = pageResult.content();
-            
-            if (sortBy != null && !sortBy.trim().isEmpty()) {
-                expenses = sortService.sortExpenses(expenses, sortBy.trim());
-            }
-            
-            BigDecimal totalAmount = expenses.stream()
-                    .map(Expense::getAmount)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-                    
-            model.addAttribute("expenses", expenses);
-            model.addAttribute("totalAmount", totalAmount);
-            model.addAttribute("pageResult", pageResult);
-            model.addAttribute("isPaginated", true);
+            allExpenses = crudService.getAllExpenses();
         }
         
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            allExpenses = sortService.sortExpenses(allExpenses, sortBy.trim());
+        }
+        
+        // Apply pagination to filtered results
+        ExpensePaginationService.PageResult<Expense> pageResult = paginationService.getPageFromList(allExpenses, page, size);
+        
+        BigDecimal totalAmount = allExpenses.stream()
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+        model.addAttribute("expenses", pageResult.content());
+        model.addAttribute("totalAmount", totalAmount);
+        model.addAttribute("pageResult", pageResult);
+        model.addAttribute("isPaginated", true);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("category", category);
@@ -161,21 +151,54 @@ public class WebExpenseController {
     }
 
     @GetMapping("/expenses/deleteAll")
-    public String deleteAllExpenses() {
+    public String deleteAllExpenses(@RequestParam(required = false) String startDate,
+                                   @RequestParam(required = false) String endDate,
+                                   @RequestParam(required = false) String category,
+                                   @RequestParam(required = false) String sortBy,
+                                   @RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "10") int size) {
         crudService.deleteAllExpenses();
-        return "redirect:/expenses";
+        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
     }
 
     @GetMapping("/expenses/addRandom")
-    public String addRandomExpense() {
+    public String addRandomExpense(@RequestParam(required = false) String startDate,
+                                  @RequestParam(required = false) String endDate,
+                                  @RequestParam(required = false) String category,
+                                  @RequestParam(required = false) String sortBy,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "10") int size) {
         crudService.addRandomExpense();
-        return "redirect:/expenses";
+        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
     }
 
     @GetMapping("/expenses/addRandom30")
-    public String add30RandomExpenses() {
+    public String add30RandomExpenses(@RequestParam(required = false) String startDate,
+                                     @RequestParam(required = false) String endDate,
+                                     @RequestParam(required = false) String category,
+                                     @RequestParam(required = false) String sortBy,
+                                     @RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "10") int size) {
         crudService.addMultipleRandomExpenses(30);
-        return "redirect:/expenses";
+        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
+    }
+
+    private String buildQueryString(String startDate, String endDate, String category, String sortBy, int page, int size) {
+        StringBuilder query = new StringBuilder();
+        if (startDate != null && !startDate.isEmpty()) {
+            query.append("startDate=").append(startDate).append("&");
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            query.append("endDate=").append(endDate).append("&");
+        }
+        if (category != null && !category.isEmpty()) {
+            query.append("category=").append(category).append("&");
+        }
+        if (sortBy != null && !sortBy.isEmpty()) {
+            query.append("sortBy=").append(sortBy).append("&");
+        }
+        query.append("page=").append(page).append("&size=").append(size);
+        return query.toString();
     }
 
     @GetMapping("/expenses/filter")

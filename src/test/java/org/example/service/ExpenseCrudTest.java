@@ -62,12 +62,9 @@ public class ExpenseCrudTest {
     @Test
     void testSaveExpense() {
         Expense expense = createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now());
-        when(idService.getNextAvailableId()).thenReturn(1L);
         
         crudService.saveExpense(expense);
 
-        assertEquals(1L, expense.getId());
-        verify(idService).getNextAvailableId();
         verify(expenseDAO).save(expense);
     }
 

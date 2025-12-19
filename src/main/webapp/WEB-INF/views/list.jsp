@@ -11,9 +11,9 @@
         <h1>Expense Tracker</h1>
         <div class="mb-3">
             <a href="${pageContext.request.contextPath}/expenses/add" class="btn btn-primary">Add New Expense</a>
-            <a href="${pageContext.request.contextPath}/expenses/addRandom" class="btn btn-success ms-2">Add Random Expense</a>
-            <a href="${pageContext.request.contextPath}/expenses/addRandom30" class="btn btn-success ms-2">Create 30 Expenses</a>
-            <a href="${pageContext.request.contextPath}/expenses/deleteAll" class="btn btn-danger ms-2" 
+            <a href="${pageContext.request.contextPath}/expenses/addRandom?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" class="btn btn-success ms-2">Add Random Expense</a>
+            <a href="${pageContext.request.contextPath}/expenses/addRandom30?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" class="btn btn-success ms-2">Create 30 Expenses</a>
+            <a href="${pageContext.request.contextPath}/expenses/deleteAll?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" class="btn btn-danger ms-2" 
                onclick="return confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')">Delete All Expenses</a>
             <a href="${pageContext.request.contextPath}/expenses/export?category=${category}&startDate=${startDate}&endDate=${endDate}" 
                class="btn btn-warning ms-2">Export CSV</a>
@@ -81,21 +81,21 @@
                 <ul class="pagination justify-content-center">
                     <c:if test="${pageResult.hasPrevious()}">
                         <li class="page-item">
-                            <a class="page-link" href="?page=${pageResult.currentPage() - 1}&size=${size}&sortBy=${sortBy}">Previous</a>
+                            <a class="page-link" href="?page=${pageResult.currentPage() - 1}&size=${size}&sortBy=${sortBy}&startDate=${startDate}&endDate=${endDate}&category=${category}">Previous</a>
                         </li>
                     </c:if>
                     
                     <c:if test="${pageResult.totalPages() > 0}">
                         <c:forEach begin="0" end="${pageResult.totalPages() - 1}" var="i">
                             <li class="page-item ${i == pageResult.currentPage() ? 'active' : ''}">
-                                <a class="page-link" href="?page=${i}&size=${size}&sortBy=${sortBy}">${i + 1}</a>
+                                <a class="page-link" href="?page=${i}&size=${size}&sortBy=${sortBy}&startDate=${startDate}&endDate=${endDate}&category=${category}">${i + 1}</a>
                             </li>
                         </c:forEach>
                     </c:if>
                     
                     <c:if test="${pageResult.hasNext()}">
                         <li class="page-item">
-                            <a class="page-link" href="?page=${pageResult.currentPage() + 1}&size=${size}&sortBy=${sortBy}">Next</a>
+                            <a class="page-link" href="?page=${pageResult.currentPage() + 1}&size=${size}&sortBy=${sortBy}&startDate=${startDate}&endDate=${endDate}&category=${category}">Next</a>
                         </li>
                     </c:if>
                 </ul>

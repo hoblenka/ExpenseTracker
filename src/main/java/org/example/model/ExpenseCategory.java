@@ -19,20 +19,10 @@ public enum ExpenseCategory {
         return displayName;
     }
 
-    public static boolean isValid(String category) {
-        if (category == null) return false;
-        for (ExpenseCategory cat : values()) {
-            if (cat.displayName.equals(category)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static ExpenseCategory fromString(String category) {
         if (category == null) return null;
         for (ExpenseCategory cat : values()) {
-            if (cat.displayName.equals(category)) {
+            if (cat.displayName.equals(category) || cat.name().equals(category)) {
                 return cat;
             }
         }

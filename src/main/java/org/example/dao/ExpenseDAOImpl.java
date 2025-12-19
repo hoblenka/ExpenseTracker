@@ -2,7 +2,9 @@ package org.example.dao;
 
 import org.example.model.Expense;
 import org.example.model.ExpenseCategory;
+import org.example.service.ExpenseIdService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -16,6 +18,11 @@ public class ExpenseDAOImpl implements ExpenseDAO {
     
     @Autowired
     DataSource dataSource;
+
+    @Autowired
+    @Lazy
+    ExpenseIdService expenseIdService;
+//The @Lazy annotation tells Spring to create a proxy for ExpenseIdService instead of initializing it immediately, breaking the circular dependency cycle during application startup.
 
     @Override
     public List<Expense> findAll() {
@@ -56,29 +63,18 @@ public class ExpenseDAOImpl implements ExpenseDAO {
 
     @Override
     public void save(Expense expense) {
-        String sql;
-        if (expense.getId() != null) {
-            sql = "INSERT INTO expenses (id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)";
-        } else {
-            sql = "INSERT INTO expenses (amount, category, date, description) VALUES (?, ?, ?, ?)";
-        }
-        
+        Long nextId = expenseIdService.getNextAvailableId();
+        String sql = "INSERT INTO expenses (id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)";
+
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            if (expense.getId() != null) {
-                stmt.setLong(1, expense.getId());
-                stmt.setBigDecimal(2, expense.getAmount());
-                stmt.setString(3, expense.getCategoryDisplayName());
-                stmt.setDate(4, Date.valueOf(expense.getDate()));
-                stmt.setString(5, expense.getDescription());
-            } else {
-                stmt.setBigDecimal(1, expense.getAmount());
-                stmt.setString(2, expense.getCategoryDisplayName());
-                stmt.setDate(3, Date.valueOf(expense.getDate()));
-                stmt.setString(4, expense.getDescription());
-            }
-            
+
+            stmt.setLong(1, nextId);
+            stmt.setBigDecimal(2, expense.getAmount());
+            stmt.setString(3, expense.getCategoryDisplayName());
+            stmt.setDate(4, Date.valueOf(expense.getDate()));
+            stmt.setString(5, expense.getDescription());
+
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Error saving expense", e);
@@ -170,6 +166,45 @@ public class ExpenseDAOImpl implements ExpenseDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Error deleting all expenses", e);
         }
+    }
+
+    @Override
+    public List<Expense> findPage(int page, int size) {
+        List<Expense> expenses = new ArrayList<>();
+        String sql = "SELECT * FROM expenses ORDER BY date DESC, id DESC LIMIT ? OFFSET ?";
+        
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, size);
+            stmt.setInt(2, page * size);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    expenses.add(mapResultSetToExpense(rs));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching expenses page", e);
+        }
+        return expenses;
+    }
+
+    @Override
+    public long countAll() {
+        String sql = "SELECT COUNT(*) FROM expenses";
+        
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting expenses", e);
+        }
+        return 0;
     }
 
     private Expense mapResultSetToExpense(ResultSet rs) throws SQLException {

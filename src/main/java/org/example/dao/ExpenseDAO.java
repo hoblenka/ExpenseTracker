@@ -13,4 +13,6 @@ public interface ExpenseDAO {
     List<Expense> findByCategory(String category);
     List<Expense> findByDateRange(LocalDate startDate, LocalDate endDate);
     void deleteAll();
+    List<Expense> findPage(int page, int size);
+    long countAll();
 }

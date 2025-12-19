@@ -27,9 +27,6 @@ public class ExpenseCrudService {
     }
 
     public void saveExpense(Expense expense) {
-        if (expense.getId() == null) {
-            expense.setId(idService.getNextAvailableId());
-        }
         expenseDAO.save(expense);
     }
 
@@ -66,5 +63,11 @@ public class ExpenseCrudService {
         
         Expense expense = new Expense(description, amount, category, date);
         saveExpense(expense);
+    }
+
+    public void addMultipleRandomExpenses(int count) {
+        for (int i = 0; i < count; i++) {
+            addRandomExpense();
+        }
     }
 }

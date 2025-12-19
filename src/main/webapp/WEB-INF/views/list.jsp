@@ -12,6 +12,7 @@
         <div class="mb-3">
             <a href="${pageContext.request.contextPath}/expenses/add" class="btn btn-primary">Add New Expense</a>
             <a href="${pageContext.request.contextPath}/expenses/addRandom" class="btn btn-success ms-2">Add Random Expense</a>
+            <a href="${pageContext.request.contextPath}/expenses/addRandom30" class="btn btn-success ms-2">Create 30 Expenses</a>
             <a href="${pageContext.request.contextPath}/expenses/deleteAll" class="btn btn-danger ms-2" 
                onclick="return confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')">Delete All Expenses</a>
             <a href="${pageContext.request.contextPath}/expenses/export?category=${category}&startDate=${startDate}&endDate=${endDate}" 
@@ -74,6 +75,46 @@
                 </c:forEach>
             </tbody>
         </table>
+        
+        <c:if test="${isPaginated}">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <c:if test="${pageResult.hasPrevious()}">
+                        <li class="page-item">
+                            <a class="page-link" href="?page=${pageResult.currentPage() - 1}&size=${size}&sortBy=${sortBy}">Previous</a>
+                        </li>
+                    </c:if>
+                    
+                    <c:if test="${pageResult.totalPages() > 0}">
+                        <c:forEach begin="0" end="${pageResult.totalPages() - 1}" var="i">
+                            <li class="page-item ${i == pageResult.currentPage() ? 'active' : ''}">
+                                <a class="page-link" href="?page=${i}&size=${size}&sortBy=${sortBy}">${i + 1}</a>
+                            </li>
+                        </c:forEach>
+                    </c:if>
+                    
+                    <c:if test="${pageResult.hasNext()}">
+                        <li class="page-item">
+                            <a class="page-link" href="?page=${pageResult.currentPage() + 1}&size=${size}&sortBy=${sortBy}">Next</a>
+                        </li>
+                    </c:if>
+                </ul>
+            </nav>
+            
+            <div class="text-center mb-3">
+                <small class="text-muted">
+                    <c:choose>
+                        <c:when test="${pageResult.totalPages() > 0}">
+                            Showing page ${pageResult.currentPage() + 1} of ${pageResult.totalPages()} 
+                            (${pageResult.totalElements()} total expenses)
+                        </c:when>
+                        <c:otherwise>
+                            No expenses found
+                        </c:otherwise>
+                    </c:choose>
+                </small>
+            </div>
+        </c:if>
         
         <div class="mt-3">
             <h4>Total Amount: <span class="text-primary">$${totalAmount}</span></h4>

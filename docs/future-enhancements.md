@@ -59,7 +59,7 @@ Allow users to filter expenses between two dates.
 
 ---
 
-## ❌ 3. Pagination for Large Expense Lists
+## ✅ 3. Pagination for Large Expense Lists
 
 ### Description
 Split the expenses list into pages (e.g., 10 per page).
@@ -125,7 +125,7 @@ Allow users to export the current filtered list to a CSV file.
 
 ---
 
-## ❌ 6. REST API Endpoints
+## ✅ 6. REST API Endpoints
 
 ### Description
 Expose CRUD operations via JSON REST API.
@@ -149,7 +149,7 @@ Expose CRUD operations via JSON REST API.
 
 ---
 
-## ❌ 7. Input Validation Improvements
+## ✅ 7. Input Validation Improvements
 
 ### Description
 Add stronger validation for amount, category, date, and description.

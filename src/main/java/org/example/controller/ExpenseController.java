@@ -4,6 +4,7 @@ import org.example.model.Expense;
 import org.example.service.ExpenseCrudService;
 import org.example.service.ExpenseFilterService;
 import org.example.service.ExpenseSortService;
+import org.example.service.ExpensePaginationService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
@@ -23,11 +24,14 @@ public class ExpenseController {
     private final ExpenseCrudService crudService;
     private final ExpenseFilterService filterService;
     private final ExpenseSortService sortService;
+    private final ExpensePaginationService paginationService;
     
-    public ExpenseController(ExpenseCrudService crudService, ExpenseFilterService filterService, ExpenseSortService sortService) {
+    public ExpenseController(ExpenseCrudService crudService, ExpenseFilterService filterService, 
+                           ExpenseSortService sortService, ExpensePaginationService paginationService) {
         this.crudService = crudService;
         this.filterService = filterService;
         this.sortService = sortService;
+        this.paginationService = paginationService;
     }
     
     @GetMapping
@@ -144,6 +148,20 @@ public class ExpenseController {
         }
     }
 
+    @PostMapping("/random/{count}")
+    public ResponseEntity<Void> addMultipleRandomExpenses(@PathVariable int count) {
+        try {
+            if (count <= 0 || count > 100) {
+                return ResponseEntity.badRequest().build();
+            }
+            crudService.addMultipleRandomExpenses(count);
+            return ResponseEntity.status(201).build();
+        } catch (Exception e) {
+            logger.error("Failed to add {} random expenses: {}", count, e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     @GetMapping("/total")
     public ResponseEntity<BigDecimal> getTotalAmount() {
         try {
@@ -165,6 +183,18 @@ public class ExpenseController {
         } catch (Exception e) {
             logger.error("Failed to filter expenses by date range: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/page")
+    public ResponseEntity<ExpensePaginationService.PageResult<Expense>> getExpensesPage(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            return ResponseEntity.ok(paginationService.getExpensesPage(page, size));
+        } catch (Exception e) {
+            logger.error("Failed to get expenses page: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 

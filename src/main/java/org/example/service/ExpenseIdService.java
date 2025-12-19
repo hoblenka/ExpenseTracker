@@ -17,7 +17,7 @@ public class ExpenseIdService {
         this.expenseDAO = expenseDAO;
     }
 
-    public Long getNextAvailableId() {
+    public synchronized Long getNextAvailableId() {
         List<Long> existingIds = expenseDAO.findAll().stream()
             .map(Expense::getId)
             .sorted()

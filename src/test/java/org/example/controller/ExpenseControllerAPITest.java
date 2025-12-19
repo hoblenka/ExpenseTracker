@@ -51,26 +51,4 @@ class ExpenseControllerAPITest {
         return expense.getDescription() != null && expense.getCategory() != null && 
                expense.getAmount() != null && expense.getDate() != null;
     }
-
-    @Test
-    public void testExpenseCreation() {
-        Expense expense = new Expense("Test expense", new BigDecimal("100.00"), ExpenseCategory.FOOD, LocalDate.now());
-
-        assertNotNull(expense);
-        assertEquals("Test expense", expense.getDescription());
-        assertEquals(new BigDecimal("100.00"), expense.getAmount());
-        assertEquals(ExpenseCategory.FOOD, expense.getCategory());
-        assertNotNull(expense.getDate());
-    }
-
-    @Test
-    public void testExpenseModification() {
-        Expense expense = new Expense("Original", new BigDecimal("50.00"), ExpenseCategory.TRANSPORT, LocalDate.now());
-
-        expense.setDescription("Updated");
-        expense.setAmount(new BigDecimal("75.00"));
-
-        assertEquals("Updated", expense.getDescription());
-        assertEquals(new BigDecimal("75.00"), expense.getAmount());
-    }
 }

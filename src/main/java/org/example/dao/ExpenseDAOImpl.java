@@ -56,15 +56,28 @@ public class ExpenseDAOImpl implements ExpenseDAO {
 
     @Override
     public void save(Expense expense) {
-        String sql = "INSERT INTO expenses (amount, category, date, description) VALUES (?, ?, ?, ?)";
+        String sql;
+        if (expense.getId() != null) {
+            sql = "INSERT INTO expenses (id, amount, category, date, description) VALUES (?, ?, ?, ?, ?)";
+        } else {
+            sql = "INSERT INTO expenses (amount, category, date, description) VALUES (?, ?, ?, ?)";
+        }
         
         try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
-            stmt.setBigDecimal(1, expense.getAmount());
-            stmt.setString(2, expense.getCategoryDisplayName());
-            stmt.setDate(3, Date.valueOf(expense.getDate()));
-            stmt.setString(4, expense.getDescription());
+            if (expense.getId() != null) {
+                stmt.setLong(1, expense.getId());
+                stmt.setBigDecimal(2, expense.getAmount());
+                stmt.setString(3, expense.getCategoryDisplayName());
+                stmt.setDate(4, Date.valueOf(expense.getDate()));
+                stmt.setString(5, expense.getDescription());
+            } else {
+                stmt.setBigDecimal(1, expense.getAmount());
+                stmt.setString(2, expense.getCategoryDisplayName());
+                stmt.setDate(3, Date.valueOf(expense.getDate()));
+                stmt.setString(4, expense.getDescription());
+            }
             
             stmt.executeUpdate();
         } catch (SQLException e) {

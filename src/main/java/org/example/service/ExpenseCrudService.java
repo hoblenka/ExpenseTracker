@@ -13,9 +13,11 @@ import java.util.List;
 public class ExpenseCrudService {
     
     private final ExpenseDAO expenseDAO;
+    private final ExpenseIdService idService;
 
-    public ExpenseCrudService(ExpenseDAO expenseDAO) {
+    public ExpenseCrudService(ExpenseDAO expenseDAO, ExpenseIdService idService) {
         this.expenseDAO = expenseDAO;
+        this.idService = idService;
     }
 
     public List<Expense> getAllExpenses() { return expenseDAO.findAll(); }
@@ -25,6 +27,9 @@ public class ExpenseCrudService {
     }
 
     public void saveExpense(Expense expense) {
+        if (expense.getId() == null) {
+            expense.setId(idService.getNextAvailableId());
+        }
         expenseDAO.save(expense);
     }
 

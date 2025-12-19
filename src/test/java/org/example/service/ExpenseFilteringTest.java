@@ -21,12 +21,15 @@ public class ExpenseFilteringTest {
     @Mock
     private ExpenseDAO expenseDAO;
 
+    @Mock
+    private ExpenseIdService idService;
+
     private ExpenseFilterService filterService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        ExpenseCrudService crudService = new ExpenseCrudService(expenseDAO);
+        ExpenseCrudService crudService = new ExpenseCrudService(expenseDAO, idService);
         filterService = new ExpenseFilterService(crudService);
     }
 

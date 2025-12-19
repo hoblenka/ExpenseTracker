@@ -21,12 +21,15 @@ public class ExpenseCrudTest {
     @Mock
     private ExpenseDAO expenseDAO;
     
+    @Mock
+    private ExpenseIdService idService;
+    
     private ExpenseCrudService crudService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        crudService = new ExpenseCrudService(expenseDAO);
+        crudService = new ExpenseCrudService(expenseDAO, idService);
     }
 
     @Test
@@ -59,9 +62,12 @@ public class ExpenseCrudTest {
     @Test
     void testSaveExpense() {
         Expense expense = createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now());
+        when(idService.getNextAvailableId()).thenReturn(1L);
         
         crudService.saveExpense(expense);
 
+        assertEquals(1L, expense.getId());
+        verify(idService).getNextAvailableId();
         verify(expenseDAO).save(expense);
     }
 

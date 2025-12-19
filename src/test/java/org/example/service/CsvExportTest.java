@@ -20,13 +20,16 @@ public class CsvExportTest {
     
     @Mock
     private ExpenseDAO expenseDAO;
+    
+    @Mock
+    private ExpenseIdService idService;
 
     private CsvExportService csvExportService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        ExpenseCrudService crudService = new ExpenseCrudService(expenseDAO);
+        ExpenseCrudService crudService = new ExpenseCrudService(expenseDAO, idService);
         ExpenseFilterService filterService = new ExpenseFilterService(crudService);
         csvExportService = new CsvExportService(crudService, filterService);
     }

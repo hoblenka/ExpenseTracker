@@ -3,6 +3,7 @@ package org.example;
 import org.example.dao.ExpenseDAO;
 import org.example.model.Expense;
 import org.example.service.ExpenseService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,12 +15,30 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @ActiveProfiles("test")
-public class ExpenseTrackerTest {
+public class ExpenseTrackerH2Test {
 
     @Autowired
     private ExpenseDAO expenseDAO;
+    
+    @Autowired
+    private javax.sql.DataSource dataSource;
+
+    @BeforeEach
+    void ensureTableExists() {
+        try (var connection = dataSource.getConnection();
+             var statement = connection.createStatement()) {
+            statement.execute("CREATE TABLE IF NOT EXISTS expenses (" +
+                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
+                "amount DECIMAL(10,2) NOT NULL, " +
+                "category VARCHAR(255) NOT NULL, " +
+                "date DATE NOT NULL, " +
+                "description TEXT)");
+        } catch (Exception e) {
+            // Table might already exist
+        }
+    }
 
     @Test
     public void testAddExpense() {

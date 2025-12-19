@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-integration.properties")
 @Transactional
-class ExpenseControllerIntegrationTest {
+class ExpenseTrackerMySQLTest {
 
     static {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();

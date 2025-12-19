@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ExpenseService {
@@ -67,5 +68,25 @@ public class ExpenseService {
         
         Expense expense = new Expense(description, amount, category, date);
         saveExpense(expense);
+    }
+
+    public List<Expense> getExpensesByDateRange(LocalDate startDate, LocalDate endDate) {
+        return expenseDAO.findByDateRange(startDate, endDate);
+    }
+
+    public String exportToCsv() {
+        List<Expense> expenses = getAllExpenses();
+        StringBuilder csv = new StringBuilder();
+        csv.append("ID,Description,Amount,Category,Date\n");
+        
+        for (Expense expense : expenses) {
+            csv.append(expense.getId()).append(",")
+               .append(expense.getDescription()).append(",")
+               .append(expense.getAmount()).append(",")
+               .append(expense.getCategory().getDisplayName()).append(",")
+               .append(expense.getDate()).append("\n");
+        }
+        
+        return csv.toString();
     }
 }

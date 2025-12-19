@@ -7,10 +7,13 @@ import org.springframework.http.ResponseEntity;
 import jakarta.validation.Valid;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.web.util.HtmlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 @RestController
 @RequestMapping("/api/expenses")
@@ -127,6 +130,34 @@ public class ExpenseController {
             return ResponseEntity.ok(expenseService.getTotalAmount());
         } catch (Exception e) {
             logger.error("Failed to get total amount: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Expense>> getExpensesByDateRange(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            LocalDate start = startDate != null ? LocalDate.parse(startDate) : null;
+            LocalDate end = endDate != null ? LocalDate.parse(endDate) : null;
+            return ResponseEntity.ok(expenseService.getExpensesByDateRange(start, end));
+        } catch (Exception e) {
+            logger.error("Failed to filter expenses by date range: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<String> exportExpensesToCsv() {
+        try {
+            String csv = expenseService.exportToCsv();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType("text/csv"));
+            headers.setContentDispositionFormData("attachment", "expenses.csv");
+            return ResponseEntity.ok().headers(headers).body(csv);
+        } catch (Exception e) {
+            logger.error("Failed to export expenses to CSV: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().build();
         }
     }

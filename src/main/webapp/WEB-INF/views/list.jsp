@@ -16,6 +16,23 @@
                onclick="return confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')">Delete All Expenses</a>
         </div>
         
+        <form method="get" class="mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="startDate" class="form-label">Start Date:</label>
+                    <input type="date" id="startDate" name="startDate" class="form-control" value="${startDate}">
+                </div>
+                <div class="col-md-4">
+                    <label for="endDate" class="form-label">End Date:</label>
+                    <input type="date" id="endDate" name="endDate" class="form-control" value="${endDate}">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-info me-2">Filter</button>
+                    <a href="${pageContext.request.contextPath}/expenses" class="btn btn-secondary">Clear</a>
+                </div>
+            </div>
+        </form>
+        
         <table class="table table-striped">
             <thead>
                 <tr>

@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import org.example.model.Expense;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ExpenseDAO {
@@ -10,5 +11,6 @@ public interface ExpenseDAO {
     void update(Expense expense);
     void deleteById(Long id);
     List<Expense> findByCategory(String category);
+    List<Expense> findByDateRange(LocalDate startDate, LocalDate endDate);
     void deleteAll();
 }

@@ -42,20 +42,8 @@ public class WebExpenseController {
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "10") int size,
                              Model model) {
-        LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
-        LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
-        
-        List<Expense> allExpenses;
-        if (start != null || end != null || (category != null && !category.isEmpty())) {
-            allExpenses = filterService.getFilteredExpenses(start, end, category);
-        } else {
-            allExpenses = crudService.getAllExpenses();
-        }
-        
-        if (sortBy != null && !sortBy.trim().isEmpty()) {
-            allExpenses = sortService.sortExpenses(allExpenses, sortBy.trim());
-        }
-        
+        var allExpenses = getAllExpenses(startDate, endDate, category, sortBy);
+
         // Apply pagination to filtered results
         ExpensePaginationService.PageResult<Expense> pageResult = paginationService.getPageFromList(allExpenses, page, size);
         
@@ -75,6 +63,23 @@ public class WebExpenseController {
         model.addAttribute("size", size);
         model.addAttribute("categories", ExpenseCategory.values());
         return "list";
+    }
+
+    private List<Expense> getAllExpenses(@RequestParam(required = false) String startDate, @RequestParam(required = false) String endDate, @RequestParam(required = false) String category, @RequestParam(required = false) String sortBy) {
+        LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
+        LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
+
+        List<Expense> allExpenses;
+        if (start != null || end != null || (category != null && !category.isEmpty())) {
+            allExpenses = filterService.getFilteredExpenses(start, end, category);
+        } else {
+            allExpenses = crudService.getAllExpenses();
+        }
+
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            allExpenses = sortService.sortExpenses(allExpenses, sortBy.trim());
+        }
+        return allExpenses;
     }
 
     @GetMapping("/expenses/add")
@@ -185,6 +190,10 @@ public class WebExpenseController {
         return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
     }
 
+    public String deleteExpense(Long id) {
+        return deleteExpense(id, null, null, null, null, 0, 10);
+    }
+
     @GetMapping("/")
     public String home() {
         return "redirect:/expenses";
@@ -201,6 +210,10 @@ public class WebExpenseController {
         return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
     }
 
+    public String deleteAllExpenses() {
+        return deleteAllExpenses(null, null, null, null, 0, 10);
+    }
+
     @GetMapping("/expenses/addRandom")
     public String addRandomExpense(@RequestParam(required = false) String startDate,
                                   @RequestParam(required = false) String endDate,
@@ -213,6 +226,10 @@ public class WebExpenseController {
         int targetPage = findExpensePage(savedExpense, startDate, endDate, category, sortBy, size);
 
         return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, targetPage, size);
+    }
+
+    public String addRandomExpense() {
+        return addRandomExpense(null, null, null, null, 0, 10);
     }
 
     @GetMapping("/expenses/addRandom30")
@@ -230,19 +247,7 @@ public class WebExpenseController {
     }
 
     private int findExpensePage(Expense expense, String startDate, String endDate, String categoryFilter, String sortBy, int size) {
-        LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
-        LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
-
-        List<Expense> allExpenses;
-        if (start != null || end != null || (categoryFilter != null && !categoryFilter.isEmpty())) {
-            allExpenses = filterService.getFilteredExpenses(start, end, categoryFilter);
-        } else {
-            allExpenses = crudService.getAllExpenses();
-        }
-
-        if (sortBy != null && !sortBy.trim().isEmpty()) {
-            allExpenses = sortService.sortExpenses(allExpenses, sortBy.trim());
-        }
+        var allExpenses = getAllExpenses(startDate, endDate, categoryFilter, sortBy);
 
         // Find the index of the expense
         int expenseIndex = -1;

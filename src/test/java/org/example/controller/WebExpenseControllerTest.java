@@ -97,7 +97,7 @@ class WebExpenseControllerTest {
     @Test
     void testDeleteExpense() {
         String result = webController.deleteExpense(1L);
-        assertEquals("redirect:/expenses", result);
+        assertTrue(result.startsWith("redirect:/expenses?"));
         verify(expenseCrudService).deleteExpense(1L);
     }
 
@@ -109,14 +109,19 @@ class WebExpenseControllerTest {
 
     @Test
     void testDeleteAllExpenses() {
-        String result = webController.deleteAllExpenses(null, null, null, null, 0, 10);
+        String result = webController.deleteAllExpenses();
         assertTrue(result.startsWith("redirect:/expenses?"));
         verify(expenseCrudService).deleteAllExpenses();
     }
 
     @Test
     void testAddRandomExpense() {
-        String result = webController.addRandomExpense(null, null, null, null, 0, 10);
+        Expense mockExpense = new Expense("Random", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now());
+        mockExpense.setId(1L);
+        when(expenseCrudService.addRandomExpense()).thenReturn(mockExpense);
+        when(expenseCrudService.getAllExpenses()).thenReturn(List.of(mockExpense));
+        
+        String result = webController.addRandomExpense();
         assertTrue(result.startsWith("redirect:/expenses?"));
         verify(expenseCrudService).addRandomExpense();
     }

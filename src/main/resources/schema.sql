@@ -5,14 +5,15 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL
 );
 
--- Create expenses table with user_id
+-- Create expenses table with composite primary key (id, user_id)
 CREATE TABLE IF NOT EXISTS expenses (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id BIGINT NOT NULL,
     amount DECIMAL(10,2) NOT NULL,
     category VARCHAR(255) NOT NULL,
     date DATE NOT NULL,
     description TEXT NOT NULL,
     user_id INT NOT NULL DEFAULT 1,
+    PRIMARY KEY (id, user_id),
     CONSTRAINT fk_expenses_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 

@@ -103,7 +103,9 @@ public class ExpenseDAOImpl implements ExpenseDAO {
 
     @Override
     public synchronized void save(Expense expense) {
-        Long nextId = expenseIdService.getNextAvailableId();
+        Long nextId = expense.getUserId() != null ? 
+            expenseIdService.getNextAvailableIdForUser(expense.getUserId()) : 
+            expenseIdService.getNextAvailableId();
         String sql = "INSERT INTO expenses (id, amount, category, date, description, user_id) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = dataSource.getConnection();

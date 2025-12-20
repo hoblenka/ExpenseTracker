@@ -116,7 +116,7 @@ public class ExpenseDAOMultiUserTest {
         long nextId = 5L;
         Expense expense = new Expense("Test expense", new BigDecimal("30.00"), ExpenseCategory.FOOD, LocalDate.now(), userId);
         
-        when(expenseIdService.getNextAvailableId()).thenReturn(nextId);
+        when(expenseIdService.getNextAvailableIdForUser(userId)).thenReturn(nextId);
 
         expenseDAO.save(expense);
 

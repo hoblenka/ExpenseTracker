@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.example.util.SessionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,7 @@ public class WebExpenseController {
                              HttpSession session) {
         logger.info("Accessing /expenses endpoint");
         
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         logger.info("Session userId: {}", userId);
         
         if (userId == null) {
@@ -124,7 +125,7 @@ public class WebExpenseController {
                            @RequestParam(defaultValue = "10") int size,
                            Model model,
                            HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
@@ -161,7 +162,7 @@ public class WebExpenseController {
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size,
                               Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
@@ -190,7 +191,7 @@ public class WebExpenseController {
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size,
                               Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
@@ -229,7 +230,7 @@ public class WebExpenseController {
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int size,
                                HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
@@ -265,13 +266,13 @@ public class WebExpenseController {
                                    @RequestParam(defaultValue = "0") int page,
                                    @RequestParam(defaultValue = "10") int size,
                                    HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
         
         crudService.deleteAllExpensesByUserId(userId);
-        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
+        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, 0, size);
     }
 
 
@@ -284,7 +285,7 @@ public class WebExpenseController {
                                   @RequestParam(defaultValue = "0") int page,
                                   @RequestParam(defaultValue = "10") int size,
                                   HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
@@ -304,16 +305,20 @@ public class WebExpenseController {
                                      @RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size,
                                      HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
         
-        Expense lastExpense = null;
         for (int i = 0; i < 30; i++) {
-            lastExpense = crudService.addRandomExpenseForUser(userId);
+            crudService.addRandomExpenseForUser(userId);
         }
-        int targetPage = findExpensePage(lastExpense, startDate, endDate, category, sortBy, size, userId);
+        
+        // Go to the last page that has the maximum number of items (size)
+        var allExpenses = getAllExpensesByUserId(startDate, endDate, category, sortBy, userId);
+        int totalPages = (int) Math.ceil((double) allExpenses.size() / size);
+        int targetPage = Math.max(0, totalPages - 2); // Go to second-to-last page to show full page
+        
         return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, targetPage, size);
     }
 
@@ -355,7 +360,7 @@ public class WebExpenseController {
     public String filterExpensesByDateRange(@RequestParam String startDate,
                                           @RequestParam String endDate,
                                           Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        Long userId = SessionHelper.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }

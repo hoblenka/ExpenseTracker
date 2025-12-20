@@ -1,6 +1,8 @@
 package org.example.controller;
 
+import jakarta.servlet.http.HttpSession;
 import org.example.service.CsvExportService;
+import org.example.util.SessionHelper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +25,19 @@ public class CsvExportController {
     public ResponseEntity<String> exportExpensesToCsv(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate) {
+            @RequestParam(required = false) String endDate,
+            HttpSession session) {
+        
+        Long userId = SessionHelper.getUserId(session);
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
         
         try {
             LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
             LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
             
-            String csv = csvExportService.exportFilteredToCsv(start, end, category);
+            String csv = csvExportService.exportFilteredToCsvForUser(start, end, category, userId);
             
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("text/csv"));

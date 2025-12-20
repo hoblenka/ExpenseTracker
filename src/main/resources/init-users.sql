@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL
 );
 
--- Insert demo user (admin/admin)
+-- Insert demo admin
 INSERT IGNORE INTO users (username, password) VALUES ('admin', 'admin');
--- Insert demo user (user1/user1)
+-- Insert demo users
 INSERT IGNORE INTO users (username, password) VALUES ('user1', 'user1');
+INSERT IGNORE INTO users (username, password) VALUES ('user2', 'user2');

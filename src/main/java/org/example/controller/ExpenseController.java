@@ -63,10 +63,6 @@ public class ExpenseController {
         }
     }
     
-    public ResponseEntity<List<Expense>> getAllExpenses() {
-        return getAllExpenses(null, null, null);
-    }
-    
     @PostMapping
     public ResponseEntity<Void> createExpense(@Valid @RequestBody Expense expense, HttpSession session) {
         try {

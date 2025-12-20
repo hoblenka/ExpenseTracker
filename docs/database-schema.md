@@ -83,3 +83,10 @@ INSERT INTO expenses (amount, category, date, description) VALUES
 (20.00, 'Food', '2024-02-11', 'Lunch with friend'),
 (10.00, 'Food', '2024-02-12', 'Breakfast');
 ```
+
+Database uses a composite key (id + user_id). 
+The current schema allows the same ID to exist for different users since the foreign key constraint only ensures user_id references a valid user, but doesn't enforce unique IDs across users.
+However, there could be potential issues:
+- Database integrity - If you ever need to reference expenses by ID alone, you'd have ambiguity
+- Application logic - Some queries might need to be more careful about user context
+- Future complications - If you later want global expense references, you'd need to migrate

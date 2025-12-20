@@ -83,10 +83,10 @@ public class WebExpenseController {
     }
 
     @PostMapping("/expenses/add")
-    public String addExpense(@RequestParam(required = false) String description,
-                           @RequestParam(required = false) BigDecimal amount,
-                           @RequestParam(required = false) String category,
-                           @RequestParam(required = false) String date,
+    public String addExpense(@RequestParam String description,
+                           @RequestParam BigDecimal amount,
+                           @RequestParam String category,
+                           @RequestParam String date,
                            @RequestParam(required = false) String startDate,
                            @RequestParam(required = false) String endDate,
                            @RequestParam(required = false) String categoryFilter,
@@ -95,20 +95,17 @@ public class WebExpenseController {
                            @RequestParam(defaultValue = "10") int size,
                            Model model) {
         try {
-            if (description != null && amount != null && category != null && date != null) {
-                Expense expense = new Expense();
-                expense.setDescription(description);
-                expense.setAmount(amount);
-                expense.setCategory(ExpenseCategory.fromString(category));
-                expense.setDate(LocalDate.parse(date));
+            Expense expense = new Expense();
+            expense.setDescription(description);
+            expense.setAmount(amount);
+            expense.setCategory(ExpenseCategory.fromString(category));
+            expense.setDate(LocalDate.parse(date));
 
-                Expense savedExpense = crudService.saveExpense(expense);
+            Expense savedExpense = crudService.saveExpense(expense);
 
-                int targetPage = findExpensePage(savedExpense, startDate, endDate, categoryFilter, sortBy, size);
+            int targetPage = findExpensePage(savedExpense, startDate, endDate, categoryFilter, sortBy, size);
 
-                return "redirect:/expenses?" + buildQueryString(startDate, endDate, categoryFilter, sortBy, targetPage, size);
-            }
-            return "redirect:/expenses";
+            return "redirect:/expenses?" + buildQueryString(startDate, endDate, categoryFilter, sortBy, targetPage, size);
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("description", description);

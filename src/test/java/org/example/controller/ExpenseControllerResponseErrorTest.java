@@ -1,16 +1,15 @@
 package org.example.controller;
 
 import org.example.model.Expense;
-import org.example.model.ExpenseCategory;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ExpenseControllerAPITest {
+/// No mocks are needed in this basic test
+class ExpenseControllerResponseErrorTest {
 
     private final ExpenseController expenseController = new ExpenseController(null, null, null, null);
 
@@ -39,16 +38,20 @@ class ExpenseControllerAPITest {
     }
 
     @Test
-    void testExpenseValidation() {
-        Expense invalidExpense = new Expense();
-        assertFalse(isValidExpense(invalidExpense));
-        
-        Expense validExpense = new Expense("Test", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.now());
-        assertTrue(isValidExpense(validExpense));
+    void testGetExpensesByCategoryWithEmptyCategory() {
+        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory("");
+        assertEquals(400, response.getStatusCode().value());
     }
 
-    private boolean isValidExpense(Expense expense) {
-        return expense.getDescription() != null && expense.getCategory() != null && 
-               expense.getAmount() != null && expense.getDate() != null;
+    @Test
+    void testGetExpensesByCategoryWithNullCategory() {
+        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory(null);
+        assertEquals(400, response.getStatusCode().value());
+    }
+
+    @Test
+    void testGetExpensesByCategoryWithWhitespaceCategory() {
+        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory("   ");
+        assertEquals(400, response.getStatusCode().value());
     }
 }

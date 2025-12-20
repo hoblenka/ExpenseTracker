@@ -36,6 +36,15 @@ class ExpenseControllerTest {
     private ExpenseController expenseController;
 
     @Test
+    void testExpenseValidation() {
+        Expense invalidExpense = new Expense();
+        assertFalse(isValidExpense(invalidExpense));
+
+        Expense validExpense = new Expense("Test", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.now());
+        assertTrue(isValidExpense(validExpense));
+    }
+
+    @Test
     void testGetAllExpenses() {
         List<Expense> mockExpenses = Arrays.asList(
             new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now()),
@@ -122,21 +131,8 @@ class ExpenseControllerTest {
         verify(mockFilterService).filterExpensesByCategory("Food");
     }
 
-    @Test
-    void testGetExpensesByCategoryWithEmptyCategory() {
-        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory("");
-        assertEquals(400, response.getStatusCode().value());
-    }
-
-    @Test
-    void testGetExpensesByCategoryWithNullCategory() {
-        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory(null);
-        assertEquals(400, response.getStatusCode().value());
-    }
-
-    @Test
-    void testGetExpensesByCategoryWithWhitespaceCategory() {
-        ResponseEntity<List<Expense>> response = expenseController.getExpensesByCategory("   ");
-        assertEquals(400, response.getStatusCode().value());
+    private boolean isValidExpense(Expense expense) {
+        return expense.getDescription() != null && expense.getCategory() != null &&
+                expense.getAmount() != null && expense.getDate() != null;
     }
 }

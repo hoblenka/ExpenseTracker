@@ -203,7 +203,7 @@ Improve layout and usability using Bootstrap.
 
 ---
 
-## ❌ 9. Dashboard with Charts
+## ✅ 9. Dashboard with Charts
 
 ### Description
 Add a dashboard showing spending by category or month.
@@ -212,6 +212,8 @@ Add a dashboard showing spending by category or month.
 - Add `/dashboard` servlet
 - Query aggregated data
 - Use Chart.js for visualization
+- Add summary cards with total spending and expense count
+- Implement responsive design with Bootstrap
 
 ### Test Scenarios
 1. **Category chart**
@@ -220,6 +222,16 @@ Add a dashboard showing spending by category or month.
     - Expected: Correct totals per month
 3. **Empty database**
     - Expected: Chart shows zero values
+
+### Implementation Details
+- Created DashboardService for data aggregation
+- Added DashboardController with REST endpoints for chart data
+- Implemented dashboard.jsp with Chart.js integration
+- Added doughnut chart for category spending
+- Added bar chart for monthly spending trends
+- Included summary cards showing total spending and expense count
+- Added navigation link from main expenses page
+- Implemented proper error handling for empty data
 
 ---
 

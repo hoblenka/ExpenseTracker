@@ -22,35 +22,30 @@
         <!-- Action Buttons -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="btn-toolbar" role="toolbar">
-                    <div class="btn-group me-2" role="group">
-                        <a href="${pageContext.request.contextPath}/expenses/add" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Add New Expense
-                        </a>
-                    </div>
-                    <div class="btn-group me-2" role="group">
-                        <a href="${pageContext.request.contextPath}/expenses/addRandom?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" 
-                           class="btn btn-success">
-                            <i class="bi bi-shuffle"></i> Add Random
-                        </a>
-                        <a href="${pageContext.request.contextPath}/expenses/addRandom30?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" 
-                           class="btn btn-success">
-                            <i class="bi bi-collection"></i> Create 30
-                        </a>
-                    </div>
-                    <div class="btn-group me-2" role="group">
-                        <a href="${pageContext.request.contextPath}/expenses/export?category=${category}&startDate=${startDate}&endDate=${endDate}" 
-                           class="btn btn-warning">
-                            <i class="bi bi-download"></i> Export CSV
-                        </a>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <a href="${pageContext.request.contextPath}/expenses/deleteAll?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" 
-                           class="btn btn-danger" 
-                           onclick="return confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')">
-                            <i class="bi bi-trash"></i> Delete All
-                        </a>
-                    </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="${pageContext.request.contextPath}/expenses/add" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add New Expense
+                    </a>
+                    <a href="${pageContext.request.contextPath}/dashboard" class="btn btn-info">
+                        <i class="bi bi-graph-up"></i> Dashboard
+                    </a>
+                    <a href="${pageContext.request.contextPath}/expenses/addRandom?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" 
+                       class="btn btn-success">
+                        <i class="bi bi-shuffle"></i> Add Random
+                    </a>
+                    <a href="${pageContext.request.contextPath}/expenses/addRandom30?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" 
+                       class="btn btn-success">
+                        <i class="bi bi-collection"></i> Add 30
+                    </a>
+                    <a href="${pageContext.request.contextPath}/expenses/export?category=${category}&startDate=${startDate}&endDate=${endDate}" 
+                       class="btn btn-warning">
+                        <i class="bi bi-download"></i> Export CSV
+                    </a>
+                    <a href="${pageContext.request.contextPath}/expenses/deleteAll?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=${sortBy}&page=${page}&size=${size}" 
+                       class="btn btn-danger" 
+                       onclick="return confirm('Are you sure you want to delete ALL expenses? This cannot be undone!')">
+                        <i class="bi bi-trash"></i> Delete All
+                    </a>
                 </div>
             </div>
         </div>

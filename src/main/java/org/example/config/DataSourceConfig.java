@@ -9,7 +9,7 @@ import javax.sql.DataSource;
 
 @Configuration
 public class DataSourceConfig {
-    
+
     @Bean
     public DataSource dataSource(@Value("${spring.datasource.url}") String url,
                                 @Value("${spring.datasource.username}") String username,

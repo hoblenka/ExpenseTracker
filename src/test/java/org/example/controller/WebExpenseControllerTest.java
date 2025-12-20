@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.Model;
+import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -40,8 +41,12 @@ class WebExpenseControllerTest {
 
     @Mock
     private Model model;
+    
+    @Mock
+    private HttpSession session;
 
     private WebExpenseController webController;
+    private final Long userId = 1L;
 
     @BeforeEach
     void setUp() {
@@ -51,20 +56,22 @@ class WebExpenseControllerTest {
 
     @Test
     void testListExpensesWithDateRange() {
+        when(session.getAttribute("userId")).thenReturn(userId);
+        
         String startDate = "2024-01-01";
         String endDate = "2024-01-31";
         Expense expense = new Expense("Test", new BigDecimal("50.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15));
         ExpensePaginationService.PageResult<Expense> pageResult = 
             new ExpensePaginationService.PageResult<>(List.of(expense), 0, 10, 1, 1);
         
-        when(filterService.getFilteredExpenses(LocalDate.parse(startDate), LocalDate.parse(endDate), null))
+        when(filterService.getFilteredExpensesByUserId(LocalDate.parse(startDate), LocalDate.parse(endDate), null, userId))
                 .thenReturn(List.of(expense));
         when(expensePaginationService.getPageFromList(List.of(expense), 0, 10)).thenReturn(pageResult);
 
-        String result = webController.listExpenses(startDate, endDate, null, null, 0, 10, model);
+        String result = webController.listExpenses(startDate, endDate, null, null, 0, 10, model, session);
 
         assertEquals("list", result);
-        verify(filterService).getFilteredExpenses(LocalDate.parse(startDate), LocalDate.parse(endDate), null);
+        verify(filterService).getFilteredExpensesByUserId(LocalDate.parse(startDate), LocalDate.parse(endDate), null, userId);
         verify(model).addAttribute("expenses", List.of(expense));
         verify(model).addAttribute("totalAmount", new BigDecimal("50.00"));
         verify(model).addAttribute("startDate", startDate);
@@ -73,17 +80,19 @@ class WebExpenseControllerTest {
 
     @Test
     void testListExpensesWithoutDateRange() {
+        when(session.getAttribute("userId")).thenReturn(userId);
+        
         Expense expense = new Expense("Test", new BigDecimal("50.00"), ExpenseCategory.FOOD, LocalDate.now());
         ExpensePaginationService.PageResult<Expense> pageResult = 
             new ExpensePaginationService.PageResult<>(List.of(expense), 0, 10, 1, 1);
         
-        when(expenseCrudService.getAllExpenses()).thenReturn(List.of(expense));
+        when(expenseCrudService.getAllExpensesByUserId(userId)).thenReturn(List.of(expense));
         when(expensePaginationService.getPageFromList(List.of(expense), 0, 10)).thenReturn(pageResult);
 
-        String result = webController.listExpenses(null, null, null, null, 0, 10, model);
+        String result = webController.listExpenses(null, null, null, null, 0, 10, model, session);
 
         assertEquals("list", result);
-        verify(expenseCrudService).getAllExpenses();
+        verify(expenseCrudService).getAllExpensesByUserId(userId);
         verify(model).addAttribute("expenses", List.of(expense));
         verify(model).addAttribute("totalAmount", new BigDecimal("50.00"));
     }
@@ -96,9 +105,11 @@ class WebExpenseControllerTest {
 
     @Test
     void testDeleteExpense() {
-        String result = webController.deleteExpense(1L);
+        when(session.getAttribute("userId")).thenReturn(userId);
+        
+        String result = webController.deleteExpense(1L, null, null, null, null, 0, 10, session);
         assertTrue(result.startsWith("redirect:/expenses?"));
-        verify(expenseCrudService).deleteExpense(1L);
+        verify(expenseCrudService).deleteExpenseByIdAndUserId(1L, userId);
     }
 
     @Test
@@ -109,20 +120,32 @@ class WebExpenseControllerTest {
 
     @Test
     void testDeleteAllExpenses() {
-        String result = webController.deleteAllExpenses();
+        when(session.getAttribute("userId")).thenReturn(userId);
+        
+        String result = webController.deleteAllExpenses(null, null, null, null, 0, 10, session);
         assertTrue(result.startsWith("redirect:/expenses?"));
-        verify(expenseCrudService).deleteAllExpenses();
+        verify(expenseCrudService).deleteAllExpensesByUserId(userId);
     }
 
     @Test
     void testAddRandomExpense() {
+        when(session.getAttribute("userId")).thenReturn(userId);
+        
         Expense mockExpense = new Expense("Random", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now());
         mockExpense.setId(1L);
-        when(expenseCrudService.addRandomExpense()).thenReturn(mockExpense);
-        when(expenseCrudService.getAllExpenses()).thenReturn(List.of(mockExpense));
+        when(expenseCrudService.addRandomExpenseForUser(userId)).thenReturn(mockExpense);
+        when(expenseCrudService.getAllExpensesByUserId(userId)).thenReturn(List.of(mockExpense));
         
-        String result = webController.addRandomExpense();
+        String result = webController.addRandomExpense(null, null, null, null, 0, 10, session);
         assertTrue(result.startsWith("redirect:/expenses?"));
-        verify(expenseCrudService).addRandomExpense();
+        verify(expenseCrudService).addRandomExpenseForUser(userId);
+    }
+
+    @Test
+    void testRedirectToLoginWhenNoSession() {
+        when(session.getAttribute("userId")).thenReturn(null);
+        
+        String result = webController.deleteExpense(1L, null, null, null, null, 0, 10, session);
+        assertEquals("redirect:/login", result);
     }
 }

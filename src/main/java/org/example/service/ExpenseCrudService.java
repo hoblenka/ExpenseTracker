@@ -21,9 +21,17 @@ public class ExpenseCrudService {
     }
 
     public List<Expense> getAllExpenses() { return expenseDAO.findAll(); }
+    
+    public List<Expense> getAllExpensesByUserId(Long userId) { 
+        return expenseDAO.findAllByUserId(userId); 
+    }
 
     public Expense getExpenseById(Long id) {
         return expenseDAO.findById(id);
+    }
+    
+    public Expense getExpenseByIdAndUserId(Long id, Long userId) {
+        return expenseDAO.findByIdAndUserId(id, userId);
     }
 
     public Expense saveExpense(Expense expense) {
@@ -41,13 +49,27 @@ public class ExpenseCrudService {
     public void deleteExpense(Long id) {
         expenseDAO.deleteById(id);
     }
+    
+    public void deleteExpenseByIdAndUserId(Long id, Long userId) {
+        expenseDAO.deleteByIdAndUserId(id, userId);
+    }
 
     public void deleteAllExpenses() {
         expenseDAO.deleteAll();
     }
+    
+    public void deleteAllExpensesByUserId(Long userId) {
+        expenseDAO.deleteAllByUserId(userId);
+    }
 
     public BigDecimal getTotalAmount() {
         return getAllExpenses().stream()
+                .map(Expense::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    
+    public BigDecimal getTotalAmountByUserId(Long userId) {
+        return getAllExpensesByUserId(userId).stream()
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
@@ -66,6 +88,25 @@ public class ExpenseCrudService {
         LocalDate date = LocalDate.now().minusDays(random.nextInt(30));
         
         Expense expense = new Expense(description, amount, category, date);
+        // Set default userId for backward compatibility
+        expense.setUserId(1L);
+        return saveExpense(expense);
+    }
+    
+    public Expense addRandomExpenseForUser(Long userId) {
+        ExpenseCategory[] categories = ExpenseCategory.values();
+        String[] descriptions = {
+            "Lunch", "Coffee", "Groceries", "Bus ticket", "Taxi", "Gas bill", "Movie ticket", 
+            "Shopping", "Dinner", "Breakfast", "Electricity bill", "Water bill", "Rent payment"
+        };
+        
+        java.util.Random random = new java.util.Random();
+        ExpenseCategory category = categories[random.nextInt(categories.length)];
+        String description = descriptions[random.nextInt(descriptions.length)];
+        BigDecimal amount = BigDecimal.valueOf(5 + random.nextDouble() * 95).setScale(2, java.math.RoundingMode.HALF_UP);
+        LocalDate date = LocalDate.now().minusDays(random.nextInt(30));
+        
+        Expense expense = new Expense(description, amount, category, date, userId);
         return saveExpense(expense);
     }
 

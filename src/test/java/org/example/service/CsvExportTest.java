@@ -36,14 +36,15 @@ public class CsvExportTest {
 
     @Test
     void testExportFullList() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            createExpense(1L, "Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15)),
-            createExpense(2L, "Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 1, 20))
+            createExpenseForUser(1L, "Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15), userId),
+            createExpenseForUser(2L, "Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 1, 20), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        String csv = csvExportService.exportAllToCsv();
+        String csv = csvExportService.exportAllToCsvForUser(userId);
 
         assertTrue(csv.contains("ID,Description,Amount,Category,Date"));
         assertTrue(csv.contains("1,Lunch,15.00,Food,2024-01-15"));
@@ -52,15 +53,16 @@ public class CsvExportTest {
 
     @Test
     void testExportFilteredByCategory() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            createExpense(1L, "Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            createExpense(2L, "Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now()),
-            createExpense(3L, "Dinner", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now())
+            createExpenseForUser(1L, "Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            createExpenseForUser(2L, "Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId),
+            createExpenseForUser(3L, "Dinner", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        String csv = csvExportService.exportFilteredToCsv(null, null, "Food");
+        String csv = csvExportService.exportFilteredToCsvForUser(null, null, "Food", userId);
 
         assertTrue(csv.contains("Lunch"));
         assertTrue(csv.contains("Dinner"));
@@ -69,17 +71,18 @@ public class CsvExportTest {
 
     @Test
     void testExportFilteredByDateRange() {
+        Long userId = 1L;
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         LocalDate endDate = LocalDate.of(2024, 1, 31);
         
         List<Expense> expenses = Arrays.asList(
-            createExpense(1L, "Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15)),
-            createExpense(2L, "Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 2, 5))
+            createExpenseForUser(1L, "Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15), userId),
+            createExpenseForUser(2L, "Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 2, 5), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        String csv = csvExportService.exportFilteredToCsv(startDate, endDate, null);
+        String csv = csvExportService.exportFilteredToCsvForUser(startDate, endDate, null, userId);
 
         assertTrue(csv.contains("Lunch"));
         assertFalse(csv.contains("Bus"));
@@ -87,22 +90,24 @@ public class CsvExportTest {
 
     @Test
     void testExportEmptyList() {
-        when(expenseDAO.findAll()).thenReturn(List.of());
+        Long userId = 1L;
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(List.of());
 
-        String csv = csvExportService.exportAllToCsv();
+        String csv = csvExportService.exportAllToCsvForUser(userId);
 
         assertEquals("ID,Description,Amount,Category,Date\n", csv);
     }
 
     @Test
     void testCsvFormatting() {
+        Long userId = 1L;
         List<Expense> expenses = List.of(
-            createExpense(1L, "Test", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 1))
+            createExpenseForUser(1L, "Test", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 1), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        String csv = csvExportService.exportAllToCsv();
+        String csv = csvExportService.exportAllToCsvForUser(userId);
 
         String[] lines = csv.split("\n");
         assertEquals(2, lines.length);
@@ -112,26 +117,27 @@ public class CsvExportTest {
 
     @Test
     void testExportCombinedFilters() {
+        Long userId = 1L;
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         LocalDate endDate = LocalDate.of(2024, 1, 31);
         
         List<Expense> expenses = Arrays.asList(
-            createExpense(1L, "Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15)),
-            createExpense(2L, "Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 1, 20)),
-            createExpense(3L, "Dinner", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 2, 5))
+            createExpenseForUser(1L, "Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15), userId),
+            createExpenseForUser(2L, "Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 1, 20), userId),
+            createExpenseForUser(3L, "Dinner", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 2, 5), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        String csv = csvExportService.exportFilteredToCsv(startDate, endDate, "Food");
+        String csv = csvExportService.exportFilteredToCsvForUser(startDate, endDate, "Food", userId);
 
         assertTrue(csv.contains("Lunch"));
         assertFalse(csv.contains("Bus"));
         assertFalse(csv.contains("Dinner"));
     }
 
-    private Expense createExpense(Long id, String description, BigDecimal amount, ExpenseCategory category, LocalDate date) {
-        Expense expense = new Expense(description, amount, category, date);
+    private Expense createExpenseForUser(Long id, String description, BigDecimal amount, ExpenseCategory category, LocalDate date, Long userId) {
+        Expense expense = new Expense(description, amount, category, date, userId);
         expense.setId(id);
         return expense;
     }

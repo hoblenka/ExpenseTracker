@@ -21,8 +21,17 @@ public class CsvExportService {
         return exportToCsv(crudService.getAllExpenses());
     }
     
+    public String exportAllToCsvForUser(Long userId) {
+        return exportToCsv(crudService.getAllExpensesByUserId(userId));
+    }
+    
     public String exportFilteredToCsv(LocalDate startDate, LocalDate endDate, String category) {
         List<Expense> expenses = filterService.getFilteredExpenses(startDate, endDate, category);
+        return exportToCsv(expenses);
+    }
+    
+    public String exportFilteredToCsvForUser(LocalDate startDate, LocalDate endDate, String category, Long userId) {
+        List<Expense> expenses = filterService.getFilteredExpensesByUserId(startDate, endDate, category, userId);
         return exportToCsv(expenses);
     }
 

@@ -240,13 +240,13 @@ Add a dashboard showing spending by category or month.
 - Implemented dashboard.jsp with Chart.js integration
 - Added doughnut chart for category spending
 - Added bar chart for monthly spending trends
-- Included summary cards showing total spending and expense count
+- Included summary cards sho  wing total spending and expense count
 - Added navigation link from main expenses page
 - Implemented proper error handling for empty data
 
 ---
 
-## ❌ 10. Multi-user Support
+## ✅ 10. Multi-user Support
 
 ### Description
 Allow each user to have their own expenses.
@@ -261,4 +261,14 @@ Allow each user to have their own expenses.
 2. **User B sees only their expenses**
 3. **Cross-user access attempt**
     - Expected: Forbidden or empty result
+
+### Implementation Details
+- Added `userId` field to Expense model with JPA annotation
+- Updated ExpenseDAO interface with user-specific methods
+- Implemented user filtering in ExpenseDAOImpl
+- Modified ExpenseCrudService to support user-specific operations
+- Updated ExpenseController to use session userId for authentication
+- Enhanced ExpenseFilterService with user-specific filtering
+- Created database migration script to add user_id column
+- All expense operations now filter by logged-in user's ID
 

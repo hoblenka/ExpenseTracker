@@ -28,15 +28,16 @@ class ExpensePaginationServiceTest {
 
     @Test
     void testGetExpensesPage() {
+        Long userId = 1L;
         List<Expense> mockExpenses = Arrays.asList(
-            new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now()),
-            new Expense("Bus ticket", new BigDecimal("3.00"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            new Expense("Bus ticket", new BigDecimal("3.00"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
         
-        when(mockExpenseDAO.countAll()).thenReturn(25L);
-        when(mockExpenseDAO.findPage(0, 10)).thenReturn(mockExpenses);
+        when(mockExpenseDAO.countAllByUserId(userId)).thenReturn(25L);
+        when(mockExpenseDAO.findPageByUserId(0, 10, userId)).thenReturn(mockExpenses);
 
-        ExpensePaginationService.PageResult<Expense> result = paginationService.getExpensesPage(0, 10);
+        ExpensePaginationService.PageResult<Expense> result = paginationService.getExpensesPageByUserId(0, 10, userId);
 
         assertEquals(0, result.currentPage());
         assertEquals(10, result.pageSize());
@@ -46,61 +47,65 @@ class ExpensePaginationServiceTest {
         assertTrue(result.hasNext());
         assertFalse(result.hasPrevious());
         
-        verify(mockExpenseDAO).countAll();
-        verify(mockExpenseDAO).findPage(0, 10);
+        verify(mockExpenseDAO).countAllByUserId(userId);
+        verify(mockExpenseDAO).findPageByUserId(0, 10, userId);
     }
 
     @Test
     void testGetExpensesPageOutOfRange() {
-        when(mockExpenseDAO.countAll()).thenReturn(25L);
-        when(mockExpenseDAO.findPage(2, 10)).thenReturn(List.of());
+        Long userId = 1L;
+        when(mockExpenseDAO.countAllByUserId(userId)).thenReturn(25L);
+        when(mockExpenseDAO.findPageByUserId(2, 10, userId)).thenReturn(List.of());
 
-        ExpensePaginationService.PageResult<Expense> result = paginationService.getExpensesPage(10, 10);
+        ExpensePaginationService.PageResult<Expense> result = paginationService.getExpensesPageByUserId(10, 10, userId);
 
         assertEquals(2, result.currentPage()); // Should be adjusted to last page
         assertEquals(3, result.totalPages());
         
-        verify(mockExpenseDAO).findPage(2, 10);
+        verify(mockExpenseDAO).findPageByUserId(2, 10, userId);
     }
 
     @Test
     void testGetExpensesPageNegativePage() {
+        Long userId = 1L;
         List<Expense> mockExpenses = List.of(
-            new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now())
+            new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now(), userId)
         );
         
-        when(mockExpenseDAO.countAll()).thenReturn(5L);
-        when(mockExpenseDAO.findPage(0, 10)).thenReturn(mockExpenses);
+        when(mockExpenseDAO.countAllByUserId(userId)).thenReturn(5L);
+        when(mockExpenseDAO.findPageByUserId(0, 10, userId)).thenReturn(mockExpenses);
 
-        ExpensePaginationService.PageResult<Expense> result = paginationService.getExpensesPage(-1, 10);
+        ExpensePaginationService.PageResult<Expense> result = paginationService.getExpensesPageByUserId(-1, 10, userId);
 
         assertEquals(0, result.currentPage()); // Should be adjusted to 0
         
-        verify(mockExpenseDAO).findPage(0, 10);
+        verify(mockExpenseDAO).findPageByUserId(0, 10, userId);
     }
 
     @Test
     void testGetExpensesPageInvalidSize() {
+        Long userId = 1L;
         List<Expense> mockExpenses = List.of(
-            new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now())
+            new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now(), userId)
         );
         
-        when(mockExpenseDAO.countAll()).thenReturn(5L);
-        when(mockExpenseDAO.findPage(0, 10)).thenReturn(mockExpenses);
+        when(mockExpenseDAO.countAllByUserId(userId)).thenReturn(5L);
+        when(mockExpenseDAO.findPageByUserId(0, 10, userId)).thenReturn(mockExpenses);
 
-        ExpensePaginationService.PageResult<Expense> result = paginationService.getExpensesPage(0, 0);
+        ExpensePaginationService.PageResult<Expense> result = paginationService.getExpensesPageByUserId(0, 0, userId);
 
         assertEquals(10, result.pageSize()); // Should use default size
         
-        verify(mockExpenseDAO).findPage(0, 10);
+        verify(mockExpenseDAO).findPageByUserId(0, 10, userId);
     }
 
     @Test
     void testGetPageFromList() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now()),
-            new Expense("Bus", new BigDecimal("3.00"), ExpenseCategory.TRANSPORT, LocalDate.now()),
-            new Expense("Lunch", new BigDecimal("12.00"), ExpenseCategory.FOOD, LocalDate.now())
+            new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            new Expense("Bus", new BigDecimal("3.00"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId),
+            new Expense("Lunch", new BigDecimal("12.00"), ExpenseCategory.FOOD, LocalDate.now(), userId)
         );
 
         ExpensePaginationService.PageResult<Expense> result = paginationService.getPageFromList(expenses, 0, 2);
@@ -129,8 +134,9 @@ class ExpensePaginationServiceTest {
 
     @Test
     void testGetPageFromListPageOutOfRange() {
+        Long userId = 1L;
         List<Expense> expenses = List.of(
-                new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now())
+                new Expense("Coffee", new BigDecimal("5.50"), ExpenseCategory.FOOD, LocalDate.now(), userId)
         );
 
         ExpensePaginationService.PageResult<Expense> result = paginationService.getPageFromList(expenses, 10, 10);

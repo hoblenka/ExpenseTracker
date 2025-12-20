@@ -35,15 +35,16 @@ public class ExpenseFilteringTest {
 
     @Test
     void testFilterByExistingCategory() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            createExpense("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now()),
-            createExpense("Dinner", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now())
+            createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            createExpenseForUser("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId),
+            createExpenseForUser("Dinner", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        List<Expense> result = filterService.getFilteredExpenses(null, null, "Food");
+        List<Expense> result = filterService.getFilteredExpensesByUserId(null, null, "Food", userId);
 
         assertEquals(2, result.size());
         assertTrue(result.stream().allMatch(e -> e.getCategoryDisplayName().equals("Food")));
@@ -51,41 +52,44 @@ public class ExpenseFilteringTest {
 
     @Test
     void testFilterByNonExistingCategory() {
+        Long userId = 1L;
         List<Expense> expenses = List.of(
-                createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now())
+                createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        List<Expense> result = filterService.getFilteredExpenses(null, null, "Travel");
+        List<Expense> result = filterService.getFilteredExpensesByUserId(null, null, "Travel", userId);
 
         assertEquals(0, result.size());
     }
 
     @Test
     void testFilterWithEmptyValue() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            createExpense("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            createExpenseForUser("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        List<Expense> result = filterService.getFilteredExpenses(null, null, "");
+        List<Expense> result = filterService.getFilteredExpensesByUserId(null, null, "", userId);
 
         assertEquals(2, result.size());
     }
 
     @Test
     void testCaseInsensitiveFiltering() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            createExpense("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            createExpenseForUser("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        List<Expense> result = filterService.getFilteredExpenses(null, null, "food");
+        List<Expense> result = filterService.getFilteredExpensesByUserId(null, null, "food", userId);
 
         assertEquals(1, result.size());
         assertEquals("Food", result.get(0).getCategoryDisplayName());
@@ -93,13 +97,14 @@ public class ExpenseFilteringTest {
 
     @Test
     void testFilterWithWhitespace() {
+        Long userId = 1L;
         List<Expense> expenses = List.of(
-                createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now())
+                createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        List<Expense> result = filterService.getFilteredExpenses(null, null, "  Food  ");
+        List<Expense> result = filterService.getFilteredExpensesByUserId(null, null, "  Food  ", userId);
 
         assertEquals(1, result.size());
     }
@@ -108,16 +113,17 @@ public class ExpenseFilteringTest {
 
     @Test
     void testGetFilteredExpensesCombined() {
+        Long userId = 1L;
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         LocalDate endDate = LocalDate.of(2024, 1, 31);
 
-        Expense expense1 = createExpense("Lunch", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15));
-        Expense expense2 = createExpense("Bus", new BigDecimal("5.00"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 1, 20));
-        Expense expense3 = createExpense("Dinner", new BigDecimal("30.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 2, 5));
+        Expense expense1 = createExpenseForUser("Lunch", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15), userId);
+        Expense expense2 = createExpenseForUser("Bus", new BigDecimal("5.00"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 1, 20), userId);
+        Expense expense3 = createExpenseForUser("Dinner", new BigDecimal("30.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 2, 5), userId);
 
-        when(expenseDAO.findAll()).thenReturn(Arrays.asList(expense1, expense2, expense3));
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(Arrays.asList(expense1, expense2, expense3));
 
-        List<Expense> result = filterService.getFilteredExpenses(startDate, endDate, "Food");
+        List<Expense> result = filterService.getFilteredExpensesByUserId(startDate, endDate, "Food", userId);
 
         assertEquals(1, result.size());
         assertEquals("Lunch", result.get(0).getDescription());
@@ -125,26 +131,28 @@ public class ExpenseFilteringTest {
 
     @Test
     void testGetFilteredExpensesNoFilters() {
-        Expense expense1 = createExpense("Lunch", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now());
-        Expense expense2 = createExpense("Bus", new BigDecimal("5.00"), ExpenseCategory.TRANSPORT, LocalDate.now());
+        Long userId = 1L;
+        Expense expense1 = createExpenseForUser("Lunch", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now(), userId);
+        Expense expense2 = createExpenseForUser("Bus", new BigDecimal("5.00"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId);
 
-        when(expenseDAO.findAll()).thenReturn(Arrays.asList(expense1, expense2));
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(Arrays.asList(expense1, expense2));
 
-        List<Expense> result = filterService.getFilteredExpenses(null, null, null);
+        List<Expense> result = filterService.getFilteredExpensesByUserId(null, null, null, userId);
 
         assertEquals(2, result.size());
     }
 
     @Test
     void testFilterExpensesByCategory() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            createExpense("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            createExpenseForUser("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        List<Expense> result = filterService.filterExpensesByCategory("Food");
+        List<Expense> result = filterService.filterExpensesByCategoryAndUserId("Food", userId);
 
         assertEquals(1, result.size());
         assertEquals("Lunch", result.get(0).getDescription());
@@ -152,23 +160,24 @@ public class ExpenseFilteringTest {
 
     @Test
     void testFilterExpensesByDateRange() {
+        Long userId = 1L;
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         LocalDate endDate = LocalDate.of(2024, 1, 31);
         
         List<Expense> expenses = Arrays.asList(
-            createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15)),
-            createExpense("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 2, 5))
+            createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15), userId),
+            createExpenseForUser("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 2, 5), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        List<Expense> result = filterService.filterExpensesByDateRange(startDate, endDate);
+        List<Expense> result = filterService.filterExpensesByDateRangeAndUserId(startDate, endDate, userId);
 
         assertEquals(1, result.size());
         assertEquals("Lunch", result.get(0).getDescription());
     }
 
-    private Expense createExpense(String description, BigDecimal amount, ExpenseCategory category, LocalDate date) {
-        return new Expense(description, amount, category, date);
+    private Expense createExpenseForUser(String description, BigDecimal amount, ExpenseCategory category, LocalDate date, Long userId) {
+        return new Expense(description, amount, category, date, userId);
     }
 }

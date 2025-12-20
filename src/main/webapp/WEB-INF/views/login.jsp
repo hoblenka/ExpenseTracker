@@ -37,6 +37,7 @@
                         
                         <div class="mt-3 text-center">
                             <small class="text-muted">Demo: admin/admin</small>
+                            <small class="text-muted">Demo: user1/user1</small>
                         </div>
                     </div>
                 </div>

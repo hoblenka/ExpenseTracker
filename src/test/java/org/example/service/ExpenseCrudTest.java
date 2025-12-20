@@ -34,34 +34,37 @@ public class ExpenseCrudTest {
 
     @Test
     void testGetAllExpenses() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            createExpense("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            createExpenseForUser("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        List<Expense> result = crudService.getAllExpenses();
+        List<Expense> result = crudService.getAllExpensesByUserId(userId);
 
         assertEquals(2, result.size());
-        verify(expenseDAO).findAll();
+        verify(expenseDAO).findAllByUserId(userId);
     }
 
     @Test
     void testGetExpenseById() {
-        Expense expense = createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now());
+        Long userId = 1L;
+        Expense expense = createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId);
         
-        when(expenseDAO.findById(1L)).thenReturn(expense);
+        when(expenseDAO.findByIdAndUserId(1L, userId)).thenReturn(expense);
 
-        Expense result = crudService.getExpenseById(1L);
+        Expense result = crudService.getExpenseByIdAndUserId(1L, userId);
 
         assertEquals("Lunch", result.getDescription());
-        verify(expenseDAO).findById(1L);
+        verify(expenseDAO).findByIdAndUserId(1L, userId);
     }
 
     @Test
     void testSaveExpense() {
-        Expense expense = createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now());
+        Long userId = 1L;
+        Expense expense = createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId);
         
         crudService.saveExpense(expense);
 
@@ -70,7 +73,8 @@ public class ExpenseCrudTest {
 
     @Test
     void testUpdateExpense() {
-        Expense expense = createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now());
+        Long userId = 1L;
+        Expense expense = createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId);
         
         crudService.updateExpense(expense);
 
@@ -79,41 +83,45 @@ public class ExpenseCrudTest {
 
     @Test
     void testDeleteExpense() {
-        crudService.deleteExpense(1L);
+        Long userId = 1L;
+        crudService.deleteExpenseByIdAndUserId(1L, userId);
 
-        verify(expenseDAO).deleteById(1L);
+        verify(expenseDAO).deleteByIdAndUserId(1L, userId);
     }
 
     @Test
     void testDeleteAllExpenses() {
-        crudService.deleteAllExpenses();
+        Long userId = 1L;
+        crudService.deleteAllExpensesByUserId(userId);
 
-        verify(expenseDAO).deleteAll();
+        verify(expenseDAO).deleteAllByUserId(userId);
     }
 
     @Test
     void testGetTotalAmount() {
+        Long userId = 1L;
         List<Expense> expenses = Arrays.asList(
-            createExpense("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            createExpense("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            createExpenseForUser("Lunch", new BigDecimal("15.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            createExpenseForUser("Bus", new BigDecimal("2.50"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
         
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        BigDecimal total = crudService.getTotalAmount();
+        BigDecimal total = crudService.getTotalAmountByUserId(userId);
 
         assertEquals(new BigDecimal("17.50"), total);
-        verify(expenseDAO).findAll();
+        verify(expenseDAO).findAllByUserId(userId);
     }
 
     @Test
     void testAddRandomExpense() {
-        crudService.addRandomExpense();
+        Long userId = 1L;
+        crudService.addRandomExpenseForUser(userId);
 
         verify(expenseDAO).save(any(Expense.class));
     }
 
-    private Expense createExpense(String description, BigDecimal amount, ExpenseCategory category, LocalDate date) {
-        return new Expense(description, amount, category, date);
+    private Expense createExpenseForUser(String description, BigDecimal amount, ExpenseCategory category, LocalDate date, Long userId) {
+        return new Expense(description, amount, category, date, userId);
     }
 }

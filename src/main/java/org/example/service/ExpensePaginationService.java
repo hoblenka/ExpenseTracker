@@ -32,6 +32,22 @@ public class ExpensePaginationService {
         return new PageResult<>(expenses, page, size, totalElements, totalPages);
     }
     
+    public PageResult<Expense> getExpensesPageByUserId(int page, int size, Long userId) {
+        if (page < 0) page = 0;
+        if (size <= 0) size = DEFAULT_PAGE_SIZE;
+        
+        long totalElements = expenseDAO.countAllByUserId(userId);
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        
+        if (page >= totalPages && totalPages > 0) {
+            page = totalPages - 1;
+        }
+        
+        List<Expense> expenses = expenseDAO.findPageByUserId(page, size, userId);
+        
+        return new PageResult<>(expenses, page, size, totalElements, totalPages);
+    }
+    
     public PageResult<Expense> getPageFromList(List<Expense> allExpenses, int page, int size) {
         if (page < 0) page = 0;
         if (size <= 0) size = DEFAULT_PAGE_SIZE;

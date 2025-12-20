@@ -1,7 +1,6 @@
 package org.example;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import org.example.controller.ExpenseController;
 import org.example.model.Expense;
 import org.example.model.ExpenseCategory;
 import org.example.service.ExpenseCrudService;
@@ -27,14 +26,11 @@ class ExpenseTrackerMySQLTest {
     @Autowired
     private ExpenseCrudService expenseCrudService;
 
-    @Autowired
-    private ExpenseController expenseController;
-
     @Test
     void testDatabaseConnectionActive() {
         // Simply verify we can read from database without adding data
         assertDoesNotThrow(() -> {
-            List<Expense> expenses = expenseCrudService.getAllExpenses();
+            List<Expense> expenses = expenseCrudService.getAllExpensesByUserId(1L);
             assertNotNull(expenses);
         });
     }
@@ -43,10 +39,11 @@ class ExpenseTrackerMySQLTest {
     void testRealDatabaseConnection() {
         // Save expense to real MySQL database
         Expense expense = new Expense("MySQL Database Test", new BigDecimal("10.00"), ExpenseCategory.OTHER, LocalDate.now());
+        expense.setUserId(1L); // Set default user for testing
         expenseCrudService.saveExpense(expense);
         
-        // Retrieve from database through controller
-        List<Expense> result = expenseController.getAllExpenses().getBody();
+        // Retrieve from database through service
+        List<Expense> result = expenseCrudService.getAllExpensesByUserId(1L);
 
         assertNotNull(result);
         assertFalse(result.isEmpty());
@@ -55,24 +52,26 @@ class ExpenseTrackerMySQLTest {
         // Cleanup - delete test data
         result.stream()
             .filter(e -> "MySQL Database Test".equals(e.getDescription()))
-            .forEach(e -> expenseCrudService.deleteExpense(e.getId()));
+            .forEach(e -> expenseCrudService.deleteExpenseByIdAndUserId(e.getId(), 1L));
     }
 
     @Test
     void testDatabasePersistence() {
         // Count existing test expenses before adding new ones
-        long initialTestCount = expenseCrudService.getAllExpenses().stream()
+        long initialTestCount = expenseCrudService.getAllExpensesByUserId(1L).stream()
                 .filter(e -> e.getDescription().startsWith("MySQL Integration"))
                 .count();
         
         Expense expense1 = new Expense("MySQL Integration 1", new BigDecimal("25.50"), ExpenseCategory.OTHER, LocalDate.now());
+        expense1.setUserId(1L);
         Expense expense2 = new Expense("MySQL Integration 2", new BigDecimal("15.75"), ExpenseCategory.OTHER, LocalDate.now());
+        expense2.setUserId(1L);
         
         expenseCrudService.saveExpense(expense1);
         expenseCrudService.saveExpense(expense2);
         
         // Verify our specific test expenses were added
-        List<Expense> allExpenses = expenseCrudService.getAllExpenses();
+        List<Expense> allExpenses = expenseCrudService.getAllExpensesByUserId(1L);
         long finalTestCount = allExpenses.stream()
                 .filter(e -> e.getDescription().startsWith("MySQL Integration"))
                 .count();
@@ -86,6 +85,6 @@ class ExpenseTrackerMySQLTest {
         // Cleanup - delete test data
         allExpenses.stream()
             .filter(e -> e.getDescription().startsWith("MySQL Integration"))
-            .forEach(e -> expenseCrudService.deleteExpense(e.getId()));
+            .forEach(e -> expenseCrudService.deleteExpenseByIdAndUserId(e.getId(), 1L));
     }
 }

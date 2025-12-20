@@ -37,4 +37,25 @@ public class ExpenseIdService {
         // No gaps found, return next sequential ID
         return existingIds.get(existingIds.size() - 1) + 1;
     }
+
+    public synchronized Long getNextAvailableIdForUser(Long userId) {
+        List<Long> existingIds = expenseDAO.findAllByUserId(userId).stream()
+            .map(Expense::getId)
+            .sorted()
+            .toList();
+
+        if (existingIds.isEmpty()) {
+            return 1L;
+        }
+
+        // Find first gap in IDs
+        for (long i = 1; i <= existingIds.size(); i++) {
+            if (!existingIds.contains(i)) {
+                return i;
+            }
+        }
+
+        // No gaps found, return next sequential ID
+        return existingIds.get(existingIds.size() - 1) + 1;
+    }
 }

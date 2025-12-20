@@ -20,17 +20,34 @@ public class ExpenseFilterService {
         List<Expense> expenses = expenseCrudService.getAllExpenses();
         return filterExpenses(expenses, startDate, endDate, category);
     }
+    
+    public List<Expense> getFilteredExpensesByUserId(LocalDate startDate, LocalDate endDate, String category, Long userId) {
+        List<Expense> expenses = expenseCrudService.getAllExpensesByUserId(userId);
+        return filterExpenses(expenses, startDate, endDate, category);
+    }
 
     public List<Expense> filterExpensesByCategory(String category) {
         return expenseCrudService.getAllExpenses().stream()
             .filter(e -> e.getCategoryDisplayName().equalsIgnoreCase(category.trim()))
             .collect(Collectors.toList());
     }
+    
+    public List<Expense> filterExpensesByCategoryAndUserId(String category, Long userId) {
+        return expenseCrudService.getAllExpensesByUserId(userId).stream()
+            .filter(e -> e.getCategoryDisplayName().equalsIgnoreCase(category.trim()))
+            .collect(Collectors.toList());
+    }
+
+    public List<Expense> filterExpensesByDateRangeAndUserId(LocalDate startDate, LocalDate endDate, Long userId) {
+        return expenseCrudService.getAllExpensesByUserId(userId).stream()
+            .filter(e -> !e.getDate().isBefore(startDate) && !e.getDate().isAfter(endDate))
+            .collect(Collectors.toList());
+    }
 
     public List<Expense> filterExpensesByDateRange(LocalDate startDate, LocalDate endDate) {
         return expenseCrudService.getAllExpenses().stream()
-            .filter(e -> !e.getDate().isBefore(startDate) && !e.getDate().isAfter(endDate))
-            .collect(Collectors.toList());
+                .filter(e -> !e.getDate().isBefore(startDate) && !e.getDate().isAfter(endDate))
+                .collect(Collectors.toList());
     }
 
     public List<Expense> filterExpenses(List<Expense> expenses, LocalDate startDate, LocalDate endDate, String category) {

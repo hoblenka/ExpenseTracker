@@ -1,10 +1,16 @@
-### Get all expenses
+### Login as admin user (required for API access)
+POST http://localhost:8080/login
+Content-Type: application/x-www-form-urlencoded
+
+username=admin&password=admin
+
+### Get all expenses (requires login session)
 GET http://localhost:8080/api/expenses
 
-### Get expense by ID
+### Get expense by ID (requires login session)
 GET http://localhost:8080/api/expenses/1
 
-### Create new expense - Lunch
+### Create new expense - Lunch (requires login session)
 POST http://localhost:8080/api/expenses
 Content-Type: application/json
 
@@ -15,7 +21,7 @@ Content-Type: application/json
   "date": "2024-12-19"
 }
 
-### Create new expense - Coffee
+### Create new expense - Coffee (requires login session)
 POST http://localhost:8080/api/expenses
 Content-Type: application/json
 
@@ -26,7 +32,7 @@ Content-Type: application/json
   "date": "2024-12-19"
 }
 
-### Create new expense - Bus ticket
+### Create new expense - Bus ticket (requires login session)
 POST http://localhost:8080/api/expenses
 Content-Type: application/json
 
@@ -48,50 +54,85 @@ Content-Type: application/json
   "date": "2024-12-19"
 }
 
-### Get expenses by category - Food
+### Get expenses by category - Food (requires login session)
 GET http://localhost:8080/api/expenses/category/Food
 
-### Get expenses by category - Transport
+### Get expenses by category - Transport (requires login session)
 GET http://localhost:8080/api/expenses/category/Transport
 
-### Delete expense by ID
+### Delete expense by ID (requires login session)
 DELETE http://localhost:8080/api/expenses/1
 
-### Delete all expenses
+### Delete all expenses (requires login session)
 DELETE http://localhost:8080/api/expenses
 
-### Get total amount of all expenses
+### Get total amount of all expenses (requires login session)
 GET http://localhost:8080/api/expenses/total
 
-### Add random expense
+### Add random expense (requires login session)
 POST http://localhost:8080/api/expenses/random
 
-### Filter expenses by category using query parameter - Food
+### Add multiple random expenses (requires login session)
+POST http://localhost:8080/api/expenses/random/5
+
+### Filter expenses by category using query parameter - Food (requires login session)
 GET http://localhost:8080/api/expenses?category=Food
 
-### Filter expenses by category using query parameter - Transport
+### Filter expenses by category using query parameter - Transport (requires login session)
 GET http://localhost:8080/api/expenses?category=Transport
 
-### Filter expenses by category - case insensitive
+### Filter expenses by category - case insensitive (requires login session)
 GET http://localhost:8080/api/expenses?category=food
 
-### Filter expenses by non-existing category
+### Filter expenses by non-existing category (requires login session)
 GET http://localhost:8080/api/expenses?category=Travel
 
-### Filter expenses with empty category (should return all)
+### Filter expenses with empty category - should return all (requires login session)
 GET http://localhost:8080/api/expenses?category=
 
-### Filter expenses with whitespace category
+### Filter expenses with whitespace category (requires login session)
 GET http://localhost:8080/api/expenses?category=  Food  
 
-### Sort expenses by amount
+### Sort expenses by amount (requires login session)
 GET http://localhost:8080/api/expenses?sortBy=amount
 
-### Sort expenses by date
+### Sort expenses by date (requires login session)
 GET http://localhost:8080/api/expenses?sortBy=date
 
-### Sort expenses by description
+### Sort expenses by description (requires login session)
 GET http://localhost:8080/api/expenses?sortBy=description
 
-### Filter and sort combined
+### Filter and sort combined (requires login session)
 GET http://localhost:8080/api/expenses?category=Food&sortBy=amount
+
+### Filter by date range (requires login session)
+GET http://localhost:8080/api/expenses/filter?startDate=2024-12-01&endDate=2024-12-31
+
+### Get paginated expenses (requires login session)
+GET http://localhost:8080/api/expenses/page?page=0&size=5
+
+### Test unauthorized access (without login) - should return 401
+GET http://localhost:8080/api/expenses
+
+### Login as different user for multi-user testing
+POST http://localhost:8080/login
+Content-Type: application/x-www-form-urlencoded
+
+username=user1&password=user1
+
+### Get expenses for user1 (should be empty initially)
+GET http://localhost:8080/api/expenses
+
+### Create expense for user1
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+
+{
+  "description": "User1 Expense",
+  "amount": 25.00,
+  "category": "Shopping",
+  "date": "2024-12-19"
+}
+
+### Logout
+POST http://localhost:8080/logout

@@ -44,9 +44,9 @@ public class ExpenseIdServiceTest {
     @Test
     void testGetNextAvailableIdSequential() {
         List<Expense> expenses = Arrays.asList(
-            createExpenseWithId(1L),
-            createExpenseWithId(2L),
-            createExpenseWithId(3L)
+            createExpenseWithId(1L, 1L),
+            createExpenseWithId(2L, 1L),
+            createExpenseWithId(3L, 1L)
         );
 
         when(expenseDAO.findAll()).thenReturn(expenses);
@@ -59,9 +59,9 @@ public class ExpenseIdServiceTest {
     @Test
     void testGetNextAvailableIdWithGap() {
         List<Expense> expenses = Arrays.asList(
-            createExpenseWithId(1L),
-            createExpenseWithId(3L),
-            createExpenseWithId(4L)
+            createExpenseWithId(1L, 1L),
+            createExpenseWithId(3L, 1L),
+            createExpenseWithId(4L, 1L)
         );
 
         when(expenseDAO.findAll()).thenReturn(expenses);
@@ -74,9 +74,9 @@ public class ExpenseIdServiceTest {
     @Test
     void testGetNextAvailableIdMultipleGaps() {
         List<Expense> expenses = Arrays.asList(
-            createExpenseWithId(1L),
-            createExpenseWithId(4L),
-            createExpenseWithId(6L)
+            createExpenseWithId(1L, 1L),
+            createExpenseWithId(4L, 1L),
+            createExpenseWithId(6L, 1L)
         );
 
         when(expenseDAO.findAll()).thenReturn(expenses);
@@ -90,15 +90,15 @@ public class ExpenseIdServiceTest {
     void testIdReuseAfterDeletion() {
         // Setup: expenses with IDs 1, 3, 4 (ID 2 was deleted)
         List<Expense> expenses = Arrays.asList(
-                createExpenseWithId(1L),
-                createExpenseWithId(3L),
-                createExpenseWithId(4L)
+                createExpenseWithId(1L, 1L),
+                createExpenseWithId(3L, 1L),
+                createExpenseWithId(4L, 1L)
         );
 
         when(expenseDAO.findAll()).thenReturn(expenses);
 
         // Create new expense - should get ID 2
-        Expense newExpense = createExpense("New", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.now());
+        Expense newExpense = createExpenseForUser("New", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.now(), 1L);
         crudService.saveExpense(newExpense);
 
         assertEquals(2L, newExpense.getId());
@@ -109,28 +109,28 @@ public class ExpenseIdServiceTest {
     void testSequentialIdWhenNoGaps() {
         // Setup: expenses with IDs 1, 2, 3
         List<Expense> expenses = Arrays.asList(
-                createExpenseWithId(1L),
-                createExpenseWithId(2L),
-                createExpenseWithId(3L)
+                createExpenseWithId(1L, 1L),
+                createExpenseWithId(2L, 1L),
+                createExpenseWithId(3L, 1L)
         );
 
         when(expenseDAO.findAll()).thenReturn(expenses);
 
         // Create new expense - should get ID 4
-        Expense newExpense = createExpense("New", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.now());
+        Expense newExpense = createExpenseForUser("New", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.now(), 1L);
         crudService.saveExpense(newExpense);
 
         assertEquals(4L, newExpense.getId());
         verify(expenseDAO).save(newExpense);
     }
 
-    private Expense createExpenseWithId(Long id) {
-        Expense expense = new Expense("Test", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.now());
+    private Expense createExpenseWithId(Long id, Long userId) {
+        Expense expense = new Expense("Test", new BigDecimal("10.00"), ExpenseCategory.FOOD, LocalDate.now(), userId);
         expense.setId(id);
         return expense;
     }
 
-    private Expense createExpense(String description, BigDecimal amount, ExpenseCategory category, LocalDate date) {
-        return new Expense(description, amount, category, date);
+    private Expense createExpenseForUser(String description, BigDecimal amount, ExpenseCategory category, LocalDate date, Long userId) {
+        return new Expense(description, amount, category, date, userId);
     }
 }

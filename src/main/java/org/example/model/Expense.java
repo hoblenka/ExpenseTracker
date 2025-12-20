@@ -24,6 +24,9 @@ public class Expense {
     
     @Column(nullable = false)
     private LocalDate date;
+    
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     public Expense() {}
 
@@ -36,6 +39,11 @@ public class Expense {
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid expense data: " + e.getMessage(), e);
         }
+    }
+
+    public Expense(String description, BigDecimal amount, ExpenseCategory category, LocalDate date, Long userId) {
+        this(description, amount, category, date);
+        setUserId(userId);
     }
 
     // Getters and Setters
@@ -84,5 +92,10 @@ public class Expense {
             throw new IllegalArgumentException("Date cannot be null");
         }
         this.date = date; 
+    }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

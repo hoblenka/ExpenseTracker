@@ -32,14 +32,15 @@ class DashboardServiceTest {
 
     @Test
     void testGetSpendingByCategory() {
+        Long userId = 1L;
         List<Expense> expenses = List.of(
-            new Expense("Lunch", new BigDecimal("15.50"), ExpenseCategory.FOOD, LocalDate.now()),
-            new Expense("Dinner", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            new Expense("Bus", new BigDecimal("5.00"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            new Expense("Lunch", new BigDecimal("15.50"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            new Expense("Dinner", new BigDecimal("25.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            new Expense("Bus", new BigDecimal("5.00"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        Map<String, BigDecimal> result = dashboardService.getSpendingByCategory();
+        Map<String, BigDecimal> result = dashboardService.getSpendingByCategoryForUser(userId);
 
         assertEquals(new BigDecimal("40.50"), result.get("Food"));
         assertEquals(new BigDecimal("5.00"), result.get("Transport"));
@@ -48,14 +49,15 @@ class DashboardServiceTest {
 
     @Test
     void testGetSpendingByMonth() {
+        Long userId = 1L;
         List<Expense> expenses = List.of(
-            new Expense("Expense1", new BigDecimal("100.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15)),
-            new Expense("Expense2", new BigDecimal("50.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 20)),
-            new Expense("Expense3", new BigDecimal("75.00"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 2, 10))
+            new Expense("Expense1", new BigDecimal("100.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 15), userId),
+            new Expense("Expense2", new BigDecimal("50.00"), ExpenseCategory.FOOD, LocalDate.of(2024, 1, 20), userId),
+            new Expense("Expense3", new BigDecimal("75.00"), ExpenseCategory.TRANSPORT, LocalDate.of(2024, 2, 10), userId)
         );
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        Map<String, BigDecimal> result = dashboardService.getSpendingByMonth();
+        Map<String, BigDecimal> result = dashboardService.getSpendingByMonthForUser(userId);
 
         assertEquals(new BigDecimal("150.00"), result.get("2024-01"));
         assertEquals(new BigDecimal("75.00"), result.get("2024-02"));
@@ -64,38 +66,41 @@ class DashboardServiceTest {
 
     @Test
     void testGetTotalSpending() {
+        Long userId = 1L;
         List<Expense> expenses = List.of(
-            new Expense("Expense1", new BigDecimal("100.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            new Expense("Expense2", new BigDecimal("50.00"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            new Expense("Expense1", new BigDecimal("100.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            new Expense("Expense2", new BigDecimal("50.00"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        BigDecimal result = dashboardService.getTotalSpending();
+        BigDecimal result = dashboardService.getTotalSpendingForUser(userId);
 
         assertEquals(new BigDecimal("150.00"), result);
     }
 
     @Test
     void testGetTotalExpenseCount() {
+        Long userId = 1L;
         List<Expense> expenses = List.of(
-            new Expense("Expense1", new BigDecimal("100.00"), ExpenseCategory.FOOD, LocalDate.now()),
-            new Expense("Expense2", new BigDecimal("50.00"), ExpenseCategory.TRANSPORT, LocalDate.now())
+            new Expense("Expense1", new BigDecimal("100.00"), ExpenseCategory.FOOD, LocalDate.now(), userId),
+            new Expense("Expense2", new BigDecimal("50.00"), ExpenseCategory.TRANSPORT, LocalDate.now(), userId)
         );
-        when(expenseDAO.findAll()).thenReturn(expenses);
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(expenses);
 
-        long result = dashboardService.getTotalExpenseCount();
+        long result = dashboardService.getTotalExpenseCountForUser(userId);
 
         assertEquals(2, result);
     }
 
     @Test
     void testEmptyDatabase() {
-        when(expenseDAO.findAll()).thenReturn(List.of());
+        Long userId = 1L;
+        when(expenseDAO.findAllByUserId(userId)).thenReturn(List.of());
 
-        Map<String, BigDecimal> categoryResult = dashboardService.getSpendingByCategory();
-        Map<String, BigDecimal> monthlyResult = dashboardService.getSpendingByMonth();
-        BigDecimal totalSpending = dashboardService.getTotalSpending();
-        long totalCount = dashboardService.getTotalExpenseCount();
+        Map<String, BigDecimal> categoryResult = dashboardService.getSpendingByCategoryForUser(userId);
+        Map<String, BigDecimal> monthlyResult = dashboardService.getSpendingByMonthForUser(userId);
+        BigDecimal totalSpending = dashboardService.getTotalSpendingForUser(userId);
+        long totalCount = dashboardService.getTotalExpenseCountForUser(userId);
 
         assertTrue(categoryResult.isEmpty());
         assertTrue(monthlyResult.isEmpty());

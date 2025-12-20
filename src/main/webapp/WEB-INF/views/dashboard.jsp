@@ -12,21 +12,26 @@
 <body>
     <div class="container mt-4">
         <div class="row mb-4">
-            <div class="col-12">
-                <h1 class="display-5">
-                    <i class="bi bi-graph-up text-primary"></i>
-                    Dashboard
-                </h1>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item">
-                            <a href="${pageContext.request.contextPath}/expenses" class="text-decoration-none">
-                                <i class="bi bi-house"></i> Expenses
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ol>
-                </nav>
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-5">
+                        <i class="bi bi-graph-up text-primary"></i>
+                        Dashboard
+                    </h1>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="${pageContext.request.contextPath}/expenses" class="text-decoration-none">
+                                    <i class="bi bi-house"></i> Expenses
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active">Dashboard</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-secondary">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
             </div>
         </div>
 

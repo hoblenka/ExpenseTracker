@@ -12,10 +12,13 @@
         <div class="row justify-content-center">
             <div class="col-md-8 col-lg-6">
                 <div class="card shadow">
-                    <div class="card-header bg-warning text-dark">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
                         <h2 class="mb-0">
                             <i class="bi bi-pencil-square"></i> Edit Expense
                         </h2>
+                        <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-dark btn-sm">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
                     </div>
                     <div class="card-body">
                         <% if (request.getAttribute("error") != null) { %>

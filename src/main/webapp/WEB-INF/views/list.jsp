@@ -11,11 +11,14 @@
 <body>
     <div class="container mt-4">
         <div class="row mb-4">
-            <div class="col-12">
+            <div class="col-12 d-flex justify-content-between align-items-center">
                 <h1 class="display-5">
                     <i class="bi bi-wallet2 text-primary"></i>
                     Expense Tracker
                 </h1>
+                <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-secondary">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
             </div>
         </div>
         

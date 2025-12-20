@@ -82,7 +82,7 @@ Split the expenses list into pages (e.g., 10 per page).
 
 ---
 
-## ❌ 4. User Authentication (Login System)
+## ✅ 4. User Authentication (Login System)
 
 ### Description
 Add login/logout functionality so only authenticated users can manage expenses.
@@ -102,6 +102,17 @@ Add login/logout functionality so only authenticated users can manage expenses.
     - Expected: Redirect to login
 4. **Logout**
     - Expected: Session cleared, redirect to login
+
+### Implementation Details
+- Created User model with id, username, and password fields
+- Added UserDAO and UserDAOImpl for database operations
+- Implemented AuthService for authentication logic
+- Created AuthController for login/logout handling
+- Added AuthFilter to protect all routes except login
+- Created login.jsp with Bootstrap styling
+- Added logout buttons to all pages
+- Updated database schema with users table
+- Demo user: admin/admin
 
 ---
 

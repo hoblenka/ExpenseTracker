@@ -1,5 +1,18 @@
 # Database Schema – ExpenseTracker
 
+## Table: users
+
+```sql
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL
+);
+
+-- Demo user
+INSERT INTO users (username, password) VALUES ('admin', 'admin');
+```
+
 ## Table: expenses
 
 ```sql

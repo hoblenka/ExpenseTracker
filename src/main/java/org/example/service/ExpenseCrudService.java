@@ -26,11 +26,12 @@ public class ExpenseCrudService {
         return expenseDAO.findById(id);
     }
 
-    public void saveExpense(Expense expense) {
+    public Expense saveExpense(Expense expense) {
         if (expense.getId() == null) {
             expense.setId(idService.getNextAvailableId());
         }
         expenseDAO.save(expense);
+        return expense;
     }
 
     public void updateExpense(Expense expense) {
@@ -51,7 +52,7 @@ public class ExpenseCrudService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public void addRandomExpense() {
+    public Expense addRandomExpense() {
         ExpenseCategory[] categories = ExpenseCategory.values();
         String[] descriptions = {
             "Lunch", "Coffee", "Groceries", "Bus ticket", "Taxi", "Gas bill", "Movie ticket", 
@@ -65,12 +66,14 @@ public class ExpenseCrudService {
         LocalDate date = LocalDate.now().minusDays(random.nextInt(30));
         
         Expense expense = new Expense(description, amount, category, date);
-        saveExpense(expense);
+        return saveExpense(expense);
     }
 
-    public void addMultipleRandomExpenses(int count) {
+    public Expense addMultipleRandomExpenses(int count) {
+        Expense lastExpense = null;
         for (int i = 0; i < count; i++) {
-            addRandomExpense();
+            lastExpense = addRandomExpense();
         }
+        return lastExpense;
     }
 }

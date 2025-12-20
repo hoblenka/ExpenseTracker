@@ -36,8 +36,10 @@ public class AuthController {
         
         User user = authService.authenticate(username, password);
         if (user != null) {
-            logger.info("Authentication successful for user: {} (ID: {})", username, user.getId());
+            logger.info("Authentication successful for user: {} (ID: {}, Role: {})", username, user.getId(), user.getRole());
             session.setAttribute("userId", user.getId());
+            session.setAttribute("userRole", user.getRole());
+            session.setAttribute("username", user.getUsername());
             return "redirect:/expenses";
         }
         

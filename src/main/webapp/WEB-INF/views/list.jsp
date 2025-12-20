@@ -16,9 +16,14 @@
                     <i class="bi bi-wallet2 text-primary"></i>
                     Expense Tracker
                 </h1>
-                <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-secondary">
-                    <i class="bi bi-box-arrow-right"></i> Logout
-                </a>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-muted">
+                        <i class="bi bi-person-circle"></i> ${username}
+                    </span>
+                    <a href="${pageContext.request.contextPath}/logout" class="btn btn-outline-secondary">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
             </div>
         </div>
         
@@ -88,6 +93,21 @@
                                 </c:forEach>
                             </select>
                         </div>
+                        <c:if test="${isAdmin}">
+                            <div class="col-md-3">
+                                <label for="filterUserId" class="form-label">
+                                    <i class="bi bi-person"></i> User
+                                </label>
+                                <select id="filterUserId" name="filterUserId" class="form-select">
+                                    <option value="">All Users</option>
+                                    <c:forEach var="user" items="${users}">
+                                        <option value="${user.id}" ${filterUserId == user.id.toString() ? 'selected' : ''}>
+                                            ${user.username}
+                                        </option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </c:if>
                         <div class="col-md-2 d-flex align-items-end">
                             <div class="btn-group w-100" role="group">
                                 <button type="submit" class="btn btn-info">
@@ -117,31 +137,31 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>
-                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=id" 
+                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&filterUserId=${filterUserId}&sortBy=id" 
                                        class="text-decoration-none text-white">
                                         <i class="bi bi-hash"></i> ID <i class="bi bi-arrow-down-up"></i>
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=description" 
+                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&filterUserId=${filterUserId}&sortBy=description" 
                                        class="text-decoration-none text-white">
                                         <i class="bi bi-card-text"></i> Description <i class="bi bi-arrow-down-up"></i>
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=amount" 
+                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&filterUserId=${filterUserId}&sortBy=amount" 
                                        class="text-decoration-none text-white">
                                         <i class="bi bi-currency-dollar"></i> Amount <i class="bi bi-arrow-down-up"></i>
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=category" 
+                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&filterUserId=${filterUserId}&sortBy=category" 
                                        class="text-decoration-none text-white">
                                         <i class="bi bi-tags"></i> Category <i class="bi bi-arrow-down-up"></i>
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&sortBy=date" 
+                                    <a href="?startDate=${startDate}&endDate=${endDate}&category=${category}&filterUserId=${filterUserId}&sortBy=date" 
                                        class="text-decoration-none text-white">
                                         <i class="bi bi-calendar"></i> Date <i class="bi bi-arrow-down-up"></i>
                                     </a>

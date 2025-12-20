@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import org.example.model.User;
+import org.example.model.UserRole;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.List;
 import java.util.Objects;
 
 @Repository
@@ -21,6 +23,7 @@ public class UserDAOImpl implements UserDAO {
         user.setId(rs.getLong("id"));
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password"));
+        user.setRole(UserRole.valueOf(rs.getString("role")));
         return user;
     };
 
@@ -32,7 +35,7 @@ public class UserDAOImpl implements UserDAO {
     public User findByUsername(String username) {
         try {
             return jdbcTemplate.queryForObject(
-                "SELECT id, username, password FROM users WHERE username = ?",
+                "SELECT id, username, password, role FROM users WHERE username = ?",
                 userRowMapper, username);
         } catch (Exception e) {
             return null;
@@ -53,5 +56,12 @@ public class UserDAOImpl implements UserDAO {
         
         user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return user;
+    }
+
+    @Override
+    public List<User> findAll() {
+        return jdbcTemplate.query(
+            "SELECT id, username, password, role FROM users ORDER BY username",
+            userRowMapper);
     }
 }

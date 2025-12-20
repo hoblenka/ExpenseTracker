@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import jakarta.servlet.http.HttpSession;
+import org.example.dao.UserDAO;
 import org.example.service.ExpenseCrudService;
 import org.example.service.ExpenseFilterService;
 import org.example.service.ExpenseSortService;
@@ -28,15 +29,17 @@ public class WebExpenseController {
     private final ExpenseSortService sortService;
     private final ExpensePaginationService paginationService;
     private final ExpenseController expenseController;
+    private final UserDAO userDAO;
 
     public WebExpenseController(ExpenseCrudService crudService, ExpenseFilterService filterService,
                                 ExpenseSortService sortService, ExpensePaginationService paginationService,
-                                ExpenseController expenseController) {
+                                ExpenseController expenseController, UserDAO userDAO) {
         this.crudService = crudService;
         this.filterService = filterService;
         this.sortService = sortService;
         this.paginationService = paginationService;
         this.expenseController = expenseController;
+        this.userDAO = userDAO;
     }
 
     @GetMapping("/expenses")
@@ -44,6 +47,7 @@ public class WebExpenseController {
                              @RequestParam(required = false) String endDate,
                              @RequestParam(required = false) String category,
                              @RequestParam(required = false) String sortBy,
+                             @RequestParam(required = false) String filterUserId,
                              @RequestParam(defaultValue = "0") int page,
                              @RequestParam(defaultValue = "10") int size,
                              Model model,
@@ -59,8 +63,10 @@ public class WebExpenseController {
         }
         
         try {
-            var allExpenses = getAllExpensesByUserId(startDate, endDate, category, sortBy, userId);
-            logger.info("Found {} expenses for user {}", allExpenses.size(), userId);
+            var allExpenses = SessionHelper.isAdmin(session) ? 
+                getAllExpenses(startDate, endDate, category, sortBy, filterUserId) : 
+                getAllExpensesByUserId(startDate, endDate, category, sortBy, userId);
+            logger.info("Found {} expenses for user {} (admin: {})", allExpenses.size(), userId, SessionHelper.isAdmin(session));
 
             // Apply pagination to filtered results
             ExpensePaginationService.PageResult<Expense> pageResult = paginationService.getPageFromList(allExpenses, page, size);
@@ -77,9 +83,16 @@ public class WebExpenseController {
             model.addAttribute("endDate", endDate);
             model.addAttribute("category", category);
             model.addAttribute("sortBy", sortBy);
+            model.addAttribute("filterUserId", filterUserId);
             model.addAttribute("page", page);
             model.addAttribute("size", size);
             model.addAttribute("categories", ExpenseCategory.values());
+            model.addAttribute("isAdmin", SessionHelper.isAdmin(session));
+            model.addAttribute("username", session.getAttribute("username"));
+            
+            if (SessionHelper.isAdmin(session)) {
+                model.addAttribute("users", userDAO.findAll());
+            }
             
             logger.info("Returning list view with {} expenses on page", pageResult.content().size());
             return "list";
@@ -99,6 +112,32 @@ public class WebExpenseController {
             allExpenses = filterService.getFilteredExpensesByUserId(start, end, category, userId);
         } else {
             allExpenses = crudService.getAllExpensesByUserId(userId);
+        }
+
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            allExpenses = sortService.sortExpenses(allExpenses, sortBy.trim());
+        }
+        return allExpenses;
+    }
+    
+    private List<Expense> getAllExpenses(String startDate, String endDate, String category, String sortBy, String filterUserId) {
+        LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
+        LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
+
+        List<Expense> allExpenses;
+        if (filterUserId != null && !filterUserId.isEmpty()) {
+            Long userId = Long.parseLong(filterUserId);
+            if (start != null || end != null || (category != null && !category.isEmpty())) {
+                allExpenses = filterService.getFilteredExpensesByUserId(start, end, category, userId);
+            } else {
+                allExpenses = crudService.getAllExpensesByUserId(userId);
+            }
+        } else {
+            if (start != null || end != null || (category != null && !category.isEmpty())) {
+                allExpenses = filterService.getFilteredExpenses(start, end, category);
+            } else {
+                allExpenses = crudService.getAllExpenses();
+            }
         }
 
         if (sortBy != null && !sortBy.trim().isEmpty()) {

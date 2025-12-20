@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.dao.UserDAO;
 import org.example.model.Expense;
 import org.example.model.ExpenseCategory;
 import org.example.service.ExpenseCrudService;
@@ -45,13 +46,16 @@ class WebExpenseControllerTest {
     @Mock
     private HttpSession session;
 
+    @Mock
+    private UserDAO user;
+
     private WebExpenseController webController;
     private final Long userId = 1L;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        webController = new WebExpenseController(expenseCrudService, filterService, sortService, expensePaginationService, expenseController);
+        webController = new WebExpenseController(expenseCrudService, filterService, sortService, expensePaginationService, expenseController, user);
     }
 
     @Test
@@ -67,8 +71,8 @@ class WebExpenseControllerTest {
         when(filterService.getFilteredExpensesByUserId(LocalDate.parse(startDate), LocalDate.parse(endDate), null, userId))
                 .thenReturn(List.of(expense));
         when(expensePaginationService.getPageFromList(List.of(expense), 0, 10)).thenReturn(pageResult);
-
-        String result = webController.listExpenses(startDate, endDate, null, null, 0, 10, model, session);
+        String userIdstr = String.valueOf(this.userId);
+        String result = webController.listExpenses(startDate, endDate, null, null, userIdstr, 0, 10, model, session);
 
         assertEquals("list", result);
         verify(filterService).getFilteredExpensesByUserId(LocalDate.parse(startDate), LocalDate.parse(endDate), null, userId);
@@ -88,8 +92,8 @@ class WebExpenseControllerTest {
         
         when(expenseCrudService.getAllExpensesByUserId(userId)).thenReturn(List.of(expense));
         when(expensePaginationService.getPageFromList(List.of(expense), 0, 10)).thenReturn(pageResult);
-
-        String result = webController.listExpenses(null, null, null, null, 0, 10, model, session);
+        String userIdstr = String.valueOf(this.userId);
+        String result = webController.listExpenses(null, null, null, null,userIdstr, 0, 10, model, session);
 
         assertEquals("list", result);
         verify(expenseCrudService).getAllExpensesByUserId(userId);

@@ -83,19 +83,31 @@ public class WebExpenseController {
     }
 
     @PostMapping("/expenses/add")
-    public String addExpense(@RequestParam String description,
-                           @RequestParam BigDecimal amount,
-                           @RequestParam String category,
-                           @RequestParam String date,
+    public String addExpense(@RequestParam(required = false) String description,
+                           @RequestParam(required = false) BigDecimal amount,
+                           @RequestParam(required = false) String category,
+                           @RequestParam(required = false) String date,
+                           @RequestParam(required = false) String startDate,
+                           @RequestParam(required = false) String endDate,
+                           @RequestParam(required = false) String categoryFilter,
+                           @RequestParam(required = false) String sortBy,
+                           @RequestParam(defaultValue = "0") int page,
+                           @RequestParam(defaultValue = "10") int size,
                            Model model) {
         try {
-            Expense expense = new Expense();
-            expense.setDescription(description);
-            expense.setAmount(amount);
-            expense.setCategory(ExpenseCategory.fromString(category));
-            expense.setDate(LocalDate.parse(date));
-            
-            crudService.saveExpense(expense);
+            if (description != null && amount != null && category != null && date != null) {
+                Expense expense = new Expense();
+                expense.setDescription(description);
+                expense.setAmount(amount);
+                expense.setCategory(ExpenseCategory.fromString(category));
+                expense.setDate(LocalDate.parse(date));
+
+                Expense savedExpense = crudService.saveExpense(expense);
+
+                int targetPage = findExpensePage(savedExpense, startDate, endDate, categoryFilter, sortBy, size);
+
+                return "redirect:/expenses?" + buildQueryString(startDate, endDate, categoryFilter, sortBy, targetPage, size);
+            }
             return "redirect:/expenses";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
@@ -108,9 +120,22 @@ public class WebExpenseController {
     }
 
     @GetMapping("/expenses/edit")
-    public String showEditForm(@RequestParam Long id, Model model) {
+    public String showEditForm(@RequestParam Long id,
+                              @RequestParam(required = false) String startDate,
+                              @RequestParam(required = false) String endDate,
+                              @RequestParam(required = false) String category,
+                              @RequestParam(required = false) String sortBy,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              Model model) {
         Expense expense = crudService.getExpenseById(id);
         model.addAttribute("expense", expense);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        model.addAttribute("category", category);
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
         return "edit";
     }
 
@@ -120,6 +145,12 @@ public class WebExpenseController {
                               @RequestParam BigDecimal amount,
                               @RequestParam String category,
                               @RequestParam String date,
+                              @RequestParam(required = false) String startDate,
+                              @RequestParam(required = false) String endDate,
+                              @RequestParam(required = false) String categoryFilter,
+                              @RequestParam(required = false) String sortBy,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
                               Model model) {
         try {
             Expense expense = new Expense();
@@ -128,21 +159,33 @@ public class WebExpenseController {
             expense.setAmount(amount);
             expense.setCategory(ExpenseCategory.fromString(category));
             expense.setDate(LocalDate.parse(date));
-            
+
             crudService.updateExpense(expense);
-            return "redirect:/expenses";
+            return "redirect:/expenses?" + buildQueryString(startDate, endDate, categoryFilter, sortBy, page, size);
         } catch (IllegalArgumentException e) {
-            Expense expense = crudService.getExpenseById(id);
-            model.addAttribute("expense", expense);
+            Expense expenseObj = crudService.getExpenseById(id);
+            model.addAttribute("expense", expenseObj);
             model.addAttribute("error", e.getMessage());
+            model.addAttribute("startDate", startDate);
+            model.addAttribute("endDate", endDate);
+            model.addAttribute("category", categoryFilter);
+            model.addAttribute("sortBy", sortBy);
+            model.addAttribute("page", page);
+            model.addAttribute("size", size);
             return "edit";
         }
     }
 
     @GetMapping("/expenses/delete")
-    public String deleteExpense(@RequestParam Long id) {
+    public String deleteExpense(@RequestParam Long id,
+                               @RequestParam(required = false) String startDate,
+                               @RequestParam(required = false) String endDate,
+                               @RequestParam(required = false) String category,
+                               @RequestParam(required = false) String sortBy,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size) {
         crudService.deleteExpense(id);
-        return "redirect:/expenses";
+        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
     }
 
     @GetMapping("/")
@@ -168,8 +211,11 @@ public class WebExpenseController {
                                   @RequestParam(required = false) String sortBy,
                                   @RequestParam(defaultValue = "0") int page,
                                   @RequestParam(defaultValue = "10") int size) {
-        crudService.addRandomExpense();
-        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
+        Expense savedExpense = crudService.addRandomExpense();
+
+        int targetPage = findExpensePage(savedExpense, startDate, endDate, category, sortBy, size);
+
+        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, targetPage, size);
     }
 
     @GetMapping("/expenses/addRandom30")
@@ -179,8 +225,39 @@ public class WebExpenseController {
                                      @RequestParam(required = false) String sortBy,
                                      @RequestParam(defaultValue = "0") int page,
                                      @RequestParam(defaultValue = "10") int size) {
-        crudService.addMultipleRandomExpenses(30);
-        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, page, size);
+        Expense lastExpense = crudService.addMultipleRandomExpenses(30);
+
+        int targetPage = findExpensePage(lastExpense, startDate, endDate, category, sortBy, size);
+
+        return "redirect:/expenses?" + buildQueryString(startDate, endDate, category, sortBy, targetPage, size);
+    }
+
+    private int findExpensePage(Expense expense, String startDate, String endDate, String categoryFilter, String sortBy, int size) {
+        LocalDate start = (startDate != null && !startDate.isEmpty()) ? LocalDate.parse(startDate) : null;
+        LocalDate end = (endDate != null && !endDate.isEmpty()) ? LocalDate.parse(endDate) : null;
+
+        List<Expense> allExpenses;
+        if (start != null || end != null || (categoryFilter != null && !categoryFilter.isEmpty())) {
+            allExpenses = filterService.getFilteredExpenses(start, end, categoryFilter);
+        } else {
+            allExpenses = crudService.getAllExpenses();
+        }
+
+        if (sortBy != null && !sortBy.trim().isEmpty()) {
+            allExpenses = sortService.sortExpenses(allExpenses, sortBy.trim());
+        }
+
+        // Find the index of the expense
+        int expenseIndex = -1;
+        for (int i = 0; i < allExpenses.size(); i++) {
+            if (allExpenses.get(i).getId().equals(expense.getId())) {
+                expenseIndex = i;
+                break;
+            }
+        }
+
+        // Calculate the page number (0-based)
+        return expenseIndex >= 0 ? expenseIndex / size : 0;
     }
 
     private String buildQueryString(String startDate, String endDate, String category, String sortBy, int page, int size) {

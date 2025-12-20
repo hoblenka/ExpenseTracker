@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import org.example.model.UserRole;
 import org.springframework.http.ResponseEntity;
 
+//Helper class
 public class SessionHelper {
     
     public static Long getUserId(HttpSession session) {

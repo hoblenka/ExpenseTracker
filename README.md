@@ -26,6 +26,11 @@ http://localhost:8080/api/expenses
 
 **Layered architecture Design**
 
-- Controller → Service → DAO → Database
-- DAO (Data Access Object) - Handles database operations, SQL queries, data persistence, pure data access
-- Service - Contains business logic, validation, transaction management, orchestrates multiple DAOs
+* Controller → Service → DAO → Database
+* DAO (Data Access Object) - Handles database operations, SQL queries, data persistence, pure data access
+* Service - Contains business logic, validation, transaction management, orchestrates multiple DAOs
+
+
+
+**Notes**
+
